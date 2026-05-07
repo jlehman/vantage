@@ -8,15 +8,15 @@ struct WorktreeTerminalTabsView: View {
   let forceAutoFocus: Bool
   let createTab: () -> Void
   @State private var windowActivity = WindowActivityState.inactive
-  // SwiftUI invalidation token. Runtime config values aren't Observable, so
-  // we bump this counter on `.ghosttyRuntimeConfigDidChange` to force body
-  // to re-read `manager.unfocusedSplitOverlay()` after a live reload.
-  @State private var configReloadCounter = 0
+  // Reading the chrome appearance env makes SwiftUI invalidate this body when
+  // `WindowTintColorScheme` republishes after a Ghostty config reload, so the
+  // unfocused-split overlay color tracks system Light/Dark flips.
+  @Environment(\.surfaceChromeAppearance) private var chromeAppearance
 
   var body: some View {
     let state = manager.state(for: worktree) { shouldRunSetupScript }
-    let _ = configReloadCounter
     let unfocusedSplitOverlay = manager.unfocusedSplitOverlay()
+    let _ = chromeAppearance
     VStack(spacing: 0) {
       if !state.shouldHideTabBar {
         TerminalTabBarView(
@@ -89,9 +89,6 @@ struct WorktreeTerminalTabsView: View {
       }
       let activity = resolvedWindowActivity
       state.syncFocus(windowIsKey: activity.isKeyWindow, windowIsVisible: activity.isVisible)
-    }
-    .onReceive(NotificationCenter.default.publisher(for: .ghosttyRuntimeConfigDidChange)) { _ in
-      configReloadCounter &+= 1
     }
   }
 
