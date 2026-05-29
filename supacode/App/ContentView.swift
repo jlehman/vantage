@@ -87,6 +87,14 @@ struct ContentView: View {
     }
     .sheet(
       item: $repositoriesStore.scope(
+        state: \.worktreeCustomization,
+        action: \.worktreeCustomization
+      )
+    ) { customizationStore in
+      WorktreeCustomizationView(store: customizationStore)
+    }
+    .sheet(
+      item: $repositoriesStore.scope(
         state: \.renameBranchPrompt,
         action: \.renameBranchPrompt
       )

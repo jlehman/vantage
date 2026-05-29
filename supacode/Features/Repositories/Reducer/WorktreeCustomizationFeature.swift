@@ -3,9 +3,10 @@ import Foundation
 import SupacodeSettingsShared
 
 @Reducer
-struct RepositoryCustomizationFeature {
+struct WorktreeCustomizationFeature {
   @ObservableState
   struct State: Equatable {
+    let worktreeID: Worktree.ID
     let repositoryID: Repository.ID
     let defaultName: String
     var title: String
@@ -22,7 +23,12 @@ struct RepositoryCustomizationFeature {
   @CasePathable
   enum Delegate: Equatable {
     case cancel
-    case save(repositoryID: Repository.ID, title: String?, color: RepositoryColor?)
+    case save(
+      worktreeID: Worktree.ID,
+      repositoryID: Repository.ID,
+      title: String?,
+      color: RepositoryColor?,
+    )
   }
 
   var body: some Reducer<State, Action> {
@@ -37,14 +43,16 @@ struct RepositoryCustomizationFeature {
 
       case .saveButtonTapped:
         let trimmed = state.title.trimmingCharacters(in: .whitespacesAndNewlines)
-        // Preserve verbatim; typing the default name locks it in as an override.
+        // Preserve the user's input verbatim; typing the default name "locks in" the current name
+        // as a real override rather than silently collapsing to nil.
         let resolvedTitle = trimmed.isEmpty ? nil : trimmed
         return .send(
           .delegate(
             .save(
+              worktreeID: state.worktreeID,
               repositoryID: state.repositoryID,
               title: resolvedTitle,
-              color: state.color
+              color: state.color,
             )
           )
         )

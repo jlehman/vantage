@@ -949,7 +949,9 @@ struct RepositoriesFeatureTests {
               branchName: "feature/new",
               baseRef: nil,
               fetchOrigin: true,
-              placement: WorktreePlacementOverride(name: nil, path: nil)
+              placement: WorktreePlacementOverride(name: nil, path: nil),
+              title: nil,
+              color: nil
             )
           )
         )
@@ -6475,7 +6477,7 @@ struct RepositoriesFeatureTests {
       hideSubtitleOnMatch: true
     )
 
-    guard case .folder(let name) = content else {
+    guard case .folder(let name, _) = content else {
       Issue.record("Expected .folder content, got \(content)")
       return
     }

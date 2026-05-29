@@ -185,6 +185,44 @@ nonisolated struct SidebarState: Equatable, Sendable, Codable {
     /// item leaves `.archived`, so the field is a reliable "is this
     /// currently archived?" signal without a bucket check.
     var archivedAt: Date?
+    /// Optional user-supplied display title that overrides the
+    /// worktree's branch / folder name in the sidebar row. `nil` (or
+    /// whitespace-only after trim) means "use the default name".
+    var title: String?
+    /// Optional user-supplied tint applied to the sidebar row title.
+    /// `nil` means "default styling".
+    var color: RepositoryColor?
+
+    private enum CodingKeys: String, CodingKey {
+      case archivedAt
+      case title
+      case color
+    }
+
+    init(archivedAt: Date? = nil, title: String? = nil, color: RepositoryColor? = nil) {
+      self.archivedAt = archivedAt
+      self.title = title
+      self.color = color
+    }
+
+    init(from decoder: any Decoder) throws {
+      let container = try decoder.container(keyedBy: CodingKeys.self)
+      self.archivedAt = try container.decodeIfPresent(Date.self, forKey: .archivedAt)
+      self.title = try container.decodeIfPresent(String.self, forKey: .title)
+      // Use `try?` so a malformed hex color (introduced by a downgrade
+      // that doesn't understand `.custom`, hand-edit, etc.) drops just
+      // this field rather than killing the row's entire entry.
+      self.color = (try? container.decodeIfPresent(RepositoryColor.self, forKey: .color)) ?? nil
+    }
+
+    func encode(to encoder: any Encoder) throws {
+      var container = encoder.container(keyedBy: CodingKeys.self)
+      try container.encodeIfPresent(archivedAt, forKey: .archivedAt)
+      // Customization fields are only emitted when set so the file
+      // stays clean for worktrees the user never touched.
+      try container.encodeIfPresent(title, forKey: .title)
+      try container.encodeIfPresent(color, forKey: .color)
+    }
   }
 
   /// Flat reference to an archived worktree: the owning repo, the
@@ -295,6 +333,48 @@ nonisolated extension SidebarState {
     sections[repositoryID] = section
   }
 
+  /// Merge a user-supplied title / color into whatever bucket already holds the row, falling back
+  /// to `.unpinned` when the row hasn't been seeded yet. Pre-existing non-nil fields on the
+  /// bucketed Item win, so a re-seed never clobbers a manual customization. Used by the
+  /// post-create and discovered-worktree seed sites so a persisted `.pinned` Item never gets
+  /// manufactured into a phantom double-bucket row.
+  mutating func mergeCustomization(
+    title: String?,
+    color: RepositoryColor?,
+    worktree worktreeID: Worktree.ID,
+    in repositoryID: Repository.ID
+  ) {
+    let destinationBucket = currentBucket(of: worktreeID, in: repositoryID) ?? .unpinned
+    var section = sections[repositoryID] ?? .init()
+    var bucket = section.buckets[destinationBucket] ?? .init()
+    var item = bucket.items[worktreeID] ?? .init()
+    if item.title == nil { item.title = title }
+    if item.color == nil { item.color = color }
+    bucket.items[worktreeID] = item
+    section.buckets[destinationBucket] = bucket
+    sections[repositoryID] = section
+  }
+
+  /// Overwrite a row's user-supplied title / color, falling back to `.unpinned` when the row
+  /// hasn't been seeded yet. Unlike `mergeCustomization`, the incoming values always win, since
+  /// this represents an explicit user save intent that must not be silently absorbed.
+  mutating func setCustomization(
+    title: String?,
+    color: RepositoryColor?,
+    worktree worktreeID: Worktree.ID,
+    in repositoryID: Repository.ID
+  ) {
+    let destinationBucket = currentBucket(of: worktreeID, in: repositoryID) ?? .unpinned
+    var section = sections[repositoryID] ?? .init()
+    var bucket = section.buckets[destinationBucket] ?? .init()
+    var item = bucket.items[worktreeID] ?? .init()
+    item.title = title
+    item.color = color
+    bucket.items[worktreeID] = item
+    section.buckets[destinationBucket] = bucket
+    sections[repositoryID] = section
+  }
+
   /// Archive `worktreeID`: drop from `from`, insert into `.archived`
   /// at the tail with the given timestamp. Materialises the section
   /// and the archived bucket when missing so a late-arriving
@@ -307,9 +387,12 @@ nonisolated extension SidebarState {
     at timestamp: Date
   ) {
     var section = sections[repositoryID] ?? .init()
-    section.buckets[from]?.items.removeValue(forKey: worktreeID)
+    // Carry the source-bucket Item forward so user-set title / color survive
+    // archive; fall back to a fresh Item when the source bucket didn't hold it.
+    var carried = section.buckets[from]?.items.removeValue(forKey: worktreeID) ?? .init()
+    carried.archivedAt = timestamp
     var archived = section.buckets[.archived] ?? .init()
-    archived.items[worktreeID] = .init(archivedAt: timestamp)
+    archived.items[worktreeID] = carried
     section.buckets[.archived] = archived
     sections[repositoryID] = section
   }
@@ -334,15 +417,39 @@ nonisolated extension SidebarState {
 
   /// Remove `worktreeID` from every bucket of `repositoryID`. Used
   /// by the delete flow (the worktree is going away entirely, so
-  /// we don't need to know which bucket currently owns it). O(1)
-  /// — exactly three bucket subscripts, no scan.
-  mutating func removeAnywhere(worktree worktreeID: Worktree.ID, in repositoryID: Repository.ID) {
+  /// we don't need to know which bucket currently owns it) and by
+  /// pin / unpin (which collapse any pre-existing multi-bucket state
+  /// before reinserting). Returns the first found Item in
+  /// `preferring` order so callers that reinsert (pin / unpin) can
+  /// carry user-set `title` / `color` forward; pass the logical
+  /// source bucket first (e.g. `.pinned` for unpin) so a corrupted
+  /// double-bucket pre-state preserves the live row's payload rather
+  /// than a stale sibling's. Default order matches the typical
+  /// "where would a curated row live" search. O(1): exactly three
+  /// bucket subscripts, no scan.
+  @discardableResult
+  mutating func removeAnywhere(
+    worktree worktreeID: Worktree.ID,
+    in repositoryID: Repository.ID,
+    preferring: [BucketID] = [.unpinned, .pinned, .archived]
+  ) -> Item? {
     guard sections[repositoryID] != nil else {
-      return
+      return nil
     }
-    sections[repositoryID]?.buckets[.pinned]?.items.removeValue(forKey: worktreeID)
-    sections[repositoryID]?.buckets[.unpinned]?.items.removeValue(forKey: worktreeID)
-    sections[repositoryID]?.buckets[.archived]?.items.removeValue(forKey: worktreeID)
+    // Remove from every bucket (the "removeAnywhere" contract); the
+    // `preferring` order only determines which carried Item we
+    // return. Buckets outside `preferring` are still purged but
+    // their payload is discarded.
+    var removed: [BucketID: Item] = [:]
+    for bucketID in [BucketID.pinned, .unpinned, .archived] {
+      if let item = sections[repositoryID]?.buckets[bucketID]?.items.removeValue(forKey: worktreeID) {
+        removed[bucketID] = item
+      }
+    }
+    for bucketID in preferring {
+      if let item = removed[bucketID] { return item }
+    }
+    return nil
   }
 
   /// Reorder `bucketID`'s items in `repositoryID` to exactly

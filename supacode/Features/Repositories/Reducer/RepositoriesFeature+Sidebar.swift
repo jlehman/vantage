@@ -64,6 +64,12 @@ extension RepositoriesFeature {
         item.isMainWorktree = isMain
         item.isPinned = isPinned
         item.isMissing = worktree.isMissing
+        // Mirror per-worktree customization from `@Shared(.sidebar)`. Reading
+        // through the currently-owning bucket survives pin / unpin / archive
+        // transitions because the bucket-flow `move` carries the `Item` over.
+        let customization = storedCustomization(for: id, in: repository.id, sidebar: state.sidebar)
+        item.customTitle = customization.title
+        item.customTint = customization.color
         // Clear the PR query branch when the worktree was renamed.
         if let existing, existing.branchName != worktree.name {
           item.pullRequestBranchAtQueryTime = nil
@@ -99,6 +105,8 @@ extension RepositoriesFeature {
           )
         item.name = pendingName
         item.branchName = pendingName
+        item.customTitle = pending.customization?.title
+        item.customTint = pending.customization?.color
         item.lifecycle =
           state.removingRepositoryIDs[pending.repositoryID] != nil
           ? .deleting
@@ -124,6 +132,22 @@ extension RepositoriesFeature {
     if !seededSurfaces.isEmpty {
       state.pendingAgentRehydrateSurfaces.formUnion(seededSurfaces)
     }
+  }
+
+  /// User-set title / color for `worktreeID`, read through whichever bucket
+  /// currently owns the row so the lookup survives pin / unpin / archive moves.
+  /// Both fields are `nil` when the row isn't bucketed yet.
+  private static func storedCustomization(
+    for worktreeID: Worktree.ID,
+    in repositoryID: Repository.ID,
+    sidebar: SidebarState
+  ) -> (title: String?, color: RepositoryColor?) {
+    guard let bucketID = sidebar.currentBucket(of: worktreeID, in: repositoryID),
+      let storedItem = sidebar.sections[repositoryID]?.buckets[bucketID]?.items[worktreeID]
+    else {
+      return (nil, nil)
+    }
+    return (storedItem.title, storedItem.color)
   }
 
   /// Pair with `reconcileSidebarItems`; recomputes `state.sidebarGrouping`.

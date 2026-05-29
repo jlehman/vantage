@@ -42,7 +42,9 @@ struct SidebarItemView: View {
       isPinned: store.isPinned,
       hideSubtitle: hideSubtitle,
       hideSubtitleOnMatch: hideSubtitleOnMatch,
-      highlightSubtitle: highlightSubtitle
+      highlightSubtitle: highlightSubtitle,
+      customTitle: store.customTitle,
+      customTint: store.customTint
     )
 
     Label {
@@ -51,6 +53,7 @@ struct SidebarItemView: View {
           name: resolved.name,
           subtitle: resolved.subtitle,
           accent: resolved.accent,
+          customTint: store.customTint,
           isLifecycleBusy: store.lifecycle.isBusy,
           isTaskRunning: store.isTaskRunning
         )
@@ -102,13 +105,19 @@ struct ResolvedRowDisplay: Equatable {
     isPinned: Bool,
     hideSubtitle: Bool,
     hideSubtitleOnMatch: Bool,
-    highlightSubtitle: SidebarHighlightRepoTag? = nil
+    highlightSubtitle: SidebarHighlightRepoTag? = nil,
+    customTitle: String? = nil,
+    customTint: RepositoryColor? = nil
   ) {
     self.accent =
       if isMainWorktree { .main } else if isPinned { .pinned } else { .default }
 
+    // User override (trimmed) takes precedence over derived names.
+    let resolvedCustom = SidebarDisplayName.resolved(custom: customTitle, fallback: nil)
+    let hasCustomTitle = resolvedCustom != nil
+
     if kind == .folder {
-      self.name = branchName
+      self.name = resolvedCustom ?? branchName
       // Folder rows ARE the repo, so a repo prefix would just repeat the title.
       self.subtitle = .none
       return
@@ -116,16 +125,17 @@ struct ResolvedRowDisplay: Equatable {
 
     let resolvedWorktreeName = worktreeName ?? "Default"
     let effectiveWorktreeName = resolvedWorktreeName.isEmpty ? branchName : resolvedWorktreeName
-    self.name = branchName
+    self.name = resolvedCustom ?? branchName
 
     let branchLastComponent = branchName.split(separator: "/").last.map(String.init) ?? branchName
     let isMatch = effectiveWorktreeName == branchLastComponent
+    // Once a user types a custom title, they've lost the visual cue that the auto-derived name was
+    // providing, so we always render the subtitle even when it would otherwise collapse on match.
+    let shouldHideOnMatch = hideSubtitleOnMatch && !hasCustomTitle && isMatch
 
     if let highlightSubtitle {
-      // Hide-on-match drop mirrors the per-repo subtitle path so a row
-      // doesn't change its disambiguation policy across hoisting.
       let trail: String?
-      if hideSubtitleOnMatch && isMatch {
+      if shouldHideOnMatch {
         trail = nil
       } else if isMainWorktree {
         trail = "Default"
@@ -142,7 +152,7 @@ struct ResolvedRowDisplay: Equatable {
       return
     }
 
-    if hideSubtitle || (hideSubtitleOnMatch && isMatch) {
+    if hideSubtitle || shouldHideOnMatch {
       self.subtitle = .none
     } else {
       self.subtitle = .plain(effectiveWorktreeName)
@@ -235,6 +245,8 @@ private struct TitleView: View, Equatable {
   let name: String
   let subtitle: ResolvedRowDisplay.Subtitle
   let accent: WorktreeAccent
+  /// User-supplied row tint. When set, paints the title; otherwise the title uses the default.
+  let customTint: RepositoryColor?
   let isLifecycleBusy: Bool
   let isTaskRunning: Bool
   // `==` ignores @Environment; SwiftUI tracks env changes separately.
@@ -244,6 +256,7 @@ private struct TitleView: View, Equatable {
     lhs.name == rhs.name
       && lhs.subtitle == rhs.subtitle
       && lhs.accent == rhs.accent
+      && lhs.customTint == rhs.customTint
       && lhs.isLifecycleBusy == rhs.isLifecycleBusy
       && lhs.isTaskRunning == rhs.isTaskRunning
   }
@@ -253,10 +266,14 @@ private struct TitleView: View, Equatable {
     let isEmphasized = backgroundProminence == .increased
     let accentStyle = accent.shapeStyle(emphasized: isEmphasized)
     VStack(alignment: .leading, spacing: 0) {
-      Text(name)
+      let titleText = Text(name)
         .font(.body)
         .lineLimit(1)
-        .shimmer(isActive: isBusy)
+      if let customTint, !isEmphasized {
+        titleText.foregroundStyle(customTint.color).shimmer(isActive: isBusy)
+      } else {
+        titleText.shimmer(isActive: isBusy)
+      }
       switch subtitle {
       case .none:
         EmptyView()
@@ -270,8 +287,7 @@ private struct TitleView: View, Equatable {
           isEmphasized
           ? AnyShapeStyle(.secondary)
           : repoColor.map { AnyShapeStyle($0.color) } ?? AnyShapeStyle(.secondary)
-        // `.layoutPriority(1)` on the repo makes the trail yield first under
-        // a narrow sidebar so the colored repo tag survives truncation.
+        // `.layoutPriority(1)` on the repo makes the trail yield first under a narrow sidebar.
         HStack(spacing: 0) {
           Text(repo)
             .foregroundStyle(repoStyle)

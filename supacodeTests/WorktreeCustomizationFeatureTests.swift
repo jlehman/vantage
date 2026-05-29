@@ -7,57 +7,58 @@ import Testing
 
 @MainActor
 @Suite(.serialized)
-struct RepositoryCustomizationFeatureTests {
+struct WorktreeCustomizationFeatureTests {
   private func makeState(
     title: String = "",
     color: RepositoryColor? = nil,
-  ) -> RepositoryCustomizationFeature.State {
-    RepositoryCustomizationFeature.State(
+  ) -> WorktreeCustomizationFeature.State {
+    WorktreeCustomizationFeature.State(
+      worktreeID: "wt-1",
       repositoryID: "/tmp/repo",
-      defaultName: "repo",
+      defaultName: "feature/x",
       title: title,
       color: color,
     )
   }
 
   @Test func saveTrimsTitleAndForwardsValues() async {
-    let store = TestStore(initialState: makeState(title: "  Custom Title  ", color: .blue)) {
-      RepositoryCustomizationFeature()
+    let store = TestStore(initialState: makeState(title: "  Spicy  ", color: .blue)) {
+      WorktreeCustomizationFeature()
     }
 
     await store.send(.saveButtonTapped)
     await store.receive(
       .delegate(
-        .save(repositoryID: "/tmp/repo", title: "Custom Title", color: .blue),
+        .save(worktreeID: "wt-1", repositoryID: "/tmp/repo", title: "Spicy", color: .blue),
       ))
   }
 
   @Test func saveDropsTitleOnlyWhenEmptyAfterTrim() async {
     let store = TestStore(initialState: makeState(title: "   ")) {
-      RepositoryCustomizationFeature()
+      WorktreeCustomizationFeature()
     }
 
     await store.send(.saveButtonTapped)
     await store.receive(
-      .delegate(.save(repositoryID: "/tmp/repo", title: nil, color: nil)),
+      .delegate(.save(worktreeID: "wt-1", repositoryID: "/tmp/repo", title: nil, color: nil)),
     )
   }
 
   @Test func savePreservesTitleEvenWhenItMatchesDefault() async {
     // Typing the default name locks it in as an explicit override (doesn't collapse to nil).
-    let store = TestStore(initialState: makeState(title: "repo")) {
-      RepositoryCustomizationFeature()
+    let store = TestStore(initialState: makeState(title: "feature/x")) {
+      WorktreeCustomizationFeature()
     }
 
     await store.send(.saveButtonTapped)
     await store.receive(
-      .delegate(.save(repositoryID: "/tmp/repo", title: "repo", color: nil)),
+      .delegate(.save(worktreeID: "wt-1", repositoryID: "/tmp/repo", title: "feature/x", color: nil)),
     )
   }
 
   @Test func cancelDelegatesCancel() async {
     let store = TestStore(initialState: makeState()) {
-      RepositoryCustomizationFeature()
+      WorktreeCustomizationFeature()
     }
 
     await store.send(.cancelButtonTapped)

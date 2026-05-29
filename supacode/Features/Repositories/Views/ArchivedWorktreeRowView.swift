@@ -5,8 +5,13 @@ import SwiftUI
 struct ArchivedWorktreeRowView: View {
   let worktree: Worktree
   let pullRequest: GithubPullRequest?
+  let customTitle: String?
+  let customTint: RepositoryColor?
   let onUnarchive: () -> Void
   let onDelete: () -> Void
+  // The system paints selected rows with white-on-blue chrome; the custom tint must yield so the
+  // selected row stays readable (matches `SidebarItemView.TitleView`).
+  @Environment(\.backgroundProminence) private var backgroundProminence
 
   var body: some View {
     let display = WorktreePullRequestDisplay(
@@ -15,6 +20,11 @@ struct ArchivedWorktreeRowView: View {
     )
     let deleteShortcut = KeyboardShortcut(.delete, modifiers: [.command, .shift]).display
     let bodyFontAscender = NSFont.preferredFont(forTextStyle: .body).ascender
+    // User override wins; fall back to the branch / folder name on whitespace
+    // or nil. Centralised so archive / sidebar / detail can't drift.
+    let displayName =
+      SidebarDisplayName.resolved(custom: customTitle, fallback: worktree.name)
+      ?? worktree.name
     VStack(alignment: .leading, spacing: 2) {
       HStack(alignment: .firstTextBaseline, spacing: 8) {
         Image(systemName: "archivebox")
@@ -25,9 +35,14 @@ struct ArchivedWorktreeRowView: View {
           .alignmentGuide(.firstTextBaseline) { _ in
             bodyFontAscender
           }
-        Text(worktree.name)
+        let titleText = Text(displayName)
           .font(.body)
           .lineLimit(1)
+        if let customTint, backgroundProminence != .increased {
+          titleText.foregroundStyle(customTint.color)
+        } else {
+          titleText
+        }
         Spacer(minLength: 8)
         HStack(spacing: 8) {
           Button {

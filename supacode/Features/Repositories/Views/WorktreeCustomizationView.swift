@@ -3,8 +3,8 @@ import SupacodeSettingsFeature
 import SupacodeSettingsShared
 import SwiftUI
 
-struct RepositoryCustomizationView: View {
-  @Bindable var store: StoreOf<RepositoryCustomizationFeature>
+struct WorktreeCustomizationView: View {
+  @Bindable var store: StoreOf<WorktreeCustomizationFeature>
   @FocusState private var isTitleFocused: Bool
 
   var body: some View {
