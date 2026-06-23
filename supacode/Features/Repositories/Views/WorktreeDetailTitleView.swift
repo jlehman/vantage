@@ -196,7 +196,7 @@ enum GitHubOwnerAvatar {
           .init(
             displayTitle: "sbertix/319-toolbar-details",
             branchName: "sbertix/319-toolbar-details",
-            repositoryName: "supacode",
+            repositoryName: "vantage",
             repositoryColor: .blue,
             worktreeSubtitle: "319-toolbar-details",
             worktreeTint: nil,
@@ -218,7 +218,7 @@ enum GitHubOwnerAvatar {
           .init(
             displayTitle: "main",
             branchName: "main",
-            repositoryName: "supacode",
+            repositoryName: "vantage",
             repositoryColor: .blue,
             worktreeSubtitle: "Default",
             worktreeTint: nil,

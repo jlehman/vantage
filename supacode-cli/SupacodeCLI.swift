@@ -3,7 +3,7 @@ import ArgumentParser
 @main
 struct SupacodeCLI: ParsableCommand {
   static let configuration = CommandConfiguration(
-    commandName: "supacode",
+    commandName: "vantage",
     abstract: "Control Supacode from the command line.",
     subcommands: [
       OpenCommand.self,

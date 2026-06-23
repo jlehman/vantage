@@ -5,7 +5,7 @@ import Testing
 
 @testable import SupacodeSettingsFeature
 @testable import SupacodeSettingsShared
-@testable import supacode
+@testable import vantage
 
 @MainActor
 struct AppFeatureSystemNotificationTests {
@@ -47,7 +47,7 @@ struct AppFeatureSystemNotificationTests {
         TextState("Cancel")
       }
     } message: {
-      TextState("Supacode cannot send system notifications.\n\nError: Mock request error")
+      TextState("Vantage cannot send system notifications.\n\nError: Mock request error")
     }
     await store.receive(\.settings.showNotificationPermissionAlert) {
       $0.settings.alert = expectedAlert
@@ -100,7 +100,7 @@ struct AppFeatureSystemNotificationTests {
         TextState("Cancel")
       }
     } message: {
-      TextState("Supacode cannot send system notifications.\n\nError: Authorization status is denied.")
+      TextState("Vantage cannot send system notifications.\n\nError: Authorization status is denied.")
     }
     await store.receive(\.settings.showNotificationPermissionAlert) {
       $0.settings.alert = expectedAlert

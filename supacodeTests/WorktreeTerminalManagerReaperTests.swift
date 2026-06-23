@@ -2,7 +2,7 @@ import Dependencies
 import Foundation
 import Testing
 
-@testable import supacode
+@testable import vantage
 
 @MainActor
 struct WorktreeTerminalManagerReaperTests {

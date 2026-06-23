@@ -2,14 +2,14 @@ import Foundation
 import Testing
 
 @testable import SupacodeSettingsShared
-@testable import supacode
+@testable import vantage
 
 struct KiroSettingsInstallerTests {
   private let fileManager = FileManager.default
 
   private func makeTempHomeURL() -> URL {
     URL(fileURLWithPath: NSTemporaryDirectory())
-      .appendingPathComponent("supacode-kiro-installer-\(UUID().uuidString)", isDirectory: true)
+      .appendingPathComponent("vantage-kiro-installer-\(UUID().uuidString)", isDirectory: true)
   }
 
   private func makeInstaller(

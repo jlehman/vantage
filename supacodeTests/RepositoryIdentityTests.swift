@@ -2,7 +2,7 @@ import Foundation
 import Testing
 
 @testable import SupacodeSettingsShared
-@testable import supacode
+@testable import vantage
 
 extension Worktree {
   /// Test convenience: a git worktree without the explicit `kind` the production

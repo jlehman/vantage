@@ -1,7 +1,7 @@
 import Foundation
 import Testing
 
-@testable import supacode
+@testable import vantage
 
 @MainActor
 struct ZmxSessionIDTests {
@@ -63,11 +63,11 @@ struct ZmxAttachTests {
 
   @Test func buildCommandQuotesPathsContainingSpaces() {
     let cmd = ZmxAttach.buildCommand(
-      executablePath: "/Applications/Supacode.app/Contents/Resources/zmx/zmx",
+      executablePath: "/Applications/Vantage.app/Contents/Resources/zmx/zmx",
       sessionID: "s",
       userCommand: nil
     )
-    #expect(cmd.hasPrefix("'/Applications/Supacode.app/Contents/Resources/zmx/zmx'"))
+    #expect(cmd.hasPrefix("'/Applications/Vantage.app/Contents/Resources/zmx/zmx'"))
   }
 
   @Test func shellQuoteEscapesSingleQuotesInUserCommand() {
@@ -90,11 +90,11 @@ struct ZmxAttachTests {
   /// since Ghostty receives a tokenized `direct:` command.
   @Test func buildWrapperArgvKeepsSpacedPathAsOneElement() {
     let argv = ZmxAttach.buildWrapperArgv(
-      executablePath: "/Applications/Supacode Dev.app/Contents/Resources/zmx/zmx",
+      executablePath: "/Applications/Vantage Dev.app/Contents/Resources/zmx/zmx",
       sessionID: "supa-1"
     )
     #expect(argv.count == 3)
-    #expect(argv[0] == "/Applications/Supacode Dev.app/Contents/Resources/zmx/zmx")
+    #expect(argv[0] == "/Applications/Vantage Dev.app/Contents/Resources/zmx/zmx")
     #expect(argv[1] == "attach")
     #expect(argv[2] == "supa-1")
   }

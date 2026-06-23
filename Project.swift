@@ -80,18 +80,18 @@ let embedGhosttyResourcesOutputPaths: [Path] = [
 let embedRuntimeAssetsInputPaths: [FileListGlob] = [
   "$(SRCROOT)/Resources/git-wt/wt",
   "$(SRCROOT)/\(zmxBinaryPath.pathString)",
-  "$(SRCROOT)/supacode/Resources/Themes/Supacode Light",
-  "$(SRCROOT)/supacode/Resources/Themes/Supacode Dark",
-  "$(BUILT_PRODUCTS_DIR)/supacode",
-  "$(UNINSTALLED_PRODUCTS_DIR)/$(PLATFORM_NAME)/supacode",
+  "$(SRCROOT)/supacode/Resources/Themes/Vantage Light",
+  "$(SRCROOT)/supacode/Resources/Themes/Vantage Dark",
+  "$(BUILT_PRODUCTS_DIR)/vantage",
+  "$(UNINSTALLED_PRODUCTS_DIR)/$(PLATFORM_NAME)/vantage",
 ]
 
 let embedRuntimeAssetsOutputPaths: [Path] = [
   "$(TARGET_BUILD_DIR)/$(UNLOCALIZED_RESOURCES_FOLDER_PATH)/git-wt/wt",
   "$(TARGET_BUILD_DIR)/$(UNLOCALIZED_RESOURCES_FOLDER_PATH)/zmx/zmx",
-  "$(TARGET_BUILD_DIR)/$(UNLOCALIZED_RESOURCES_FOLDER_PATH)/Supacode Light",
-  "$(TARGET_BUILD_DIR)/$(UNLOCALIZED_RESOURCES_FOLDER_PATH)/Supacode Dark",
-  "$(TARGET_BUILD_DIR)/$(UNLOCALIZED_RESOURCES_FOLDER_PATH)/bin/supacode",
+  "$(TARGET_BUILD_DIR)/$(UNLOCALIZED_RESOURCES_FOLDER_PATH)/Vantage Light",
+  "$(TARGET_BUILD_DIR)/$(UNLOCALIZED_RESOURCES_FOLDER_PATH)/Vantage Dark",
+  "$(TARGET_BUILD_DIR)/$(UNLOCALIZED_RESOURCES_FOLDER_PATH)/bin/vantage",
 ]
 
 let project = Project(
@@ -117,7 +117,7 @@ let project = Project(
       name: "supacode-cli",
       destinations: .macOS,
       product: .commandLineTool,
-      bundleId: "app.supabit.supacode.cli",
+      bundleId: "dev.jlehman.vantage.cli",
       deploymentTargets: .macOS("26.0"),
       infoPlist: .default,
       buildableFolders: [
@@ -130,8 +130,8 @@ let project = Project(
         base: [
           "CODE_SIGNING_ALLOWED": "NO",
           "ENABLE_HARDENED_RUNTIME": "YES",
-          "PRODUCT_MODULE_NAME": "supacode_cli",
-          "PRODUCT_NAME": "supacode",
+          "PRODUCT_MODULE_NAME": "vantage_cli",
+          "PRODUCT_NAME": "vantage",
           "SKIP_INSTALL": "YES",
           "SWIFT_DEFAULT_ACTOR_ISOLATION": "MainActor",
         ],
@@ -155,7 +155,7 @@ let project = Project(
       name: "SupacodeSettingsShared",
       destinations: .macOS,
       product: .staticFramework,
-      bundleId: "app.supabit.supacode.settings-shared",
+      bundleId: "dev.jlehman.vantage.settings-shared",
       deploymentTargets: .macOS("26.0"),
       infoPlist: .default,
       buildableFolders: [
@@ -178,7 +178,7 @@ let project = Project(
       name: "SupacodeSettingsFeature",
       destinations: .macOS,
       product: .staticFramework,
-      bundleId: "app.supabit.supacode.settings-feature",
+      bundleId: "dev.jlehman.vantage.settings-feature",
       deploymentTargets: .macOS("26.0"),
       infoPlist: .default,
       buildableFolders: [
@@ -201,7 +201,7 @@ let project = Project(
       name: "supacode",
       destinations: .macOS,
       product: .app,
-      bundleId: "app.supabit.supacode",
+      bundleId: "dev.jlehman.vantage",
       deploymentTargets: .macOS("26.0"),
       infoPlist: .file(path: "supacode/Info.plist"),
       resources: appResources,
@@ -253,7 +253,7 @@ let project = Project(
       name: "supacodeTests",
       destinations: .macOS,
       product: .unitTests,
-      bundleId: "app.supabit.supacodeTests",
+      bundleId: "dev.jlehman.vantageTests",
       deploymentTargets: .macOS("26.1"),
       infoPlist: .default,
       buildableFolders: [

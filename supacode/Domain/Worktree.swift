@@ -109,7 +109,7 @@ nonisolated struct Worktree: Identifiable, Hashable, Sendable {
 }
 
 extension Worktree {
-  /// Base environment variables for Supacode scripts (supplemented per-surface).
+  /// Base environment variables for Vantage scripts (supplemented per-surface).
   var scriptEnvironment: [String: String] {
     [
       "SUPACODE_WORKTREE_PATH": workingDirectory.path(percentEncoded: false),

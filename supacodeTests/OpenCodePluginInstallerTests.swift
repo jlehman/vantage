@@ -2,14 +2,14 @@ import Foundation
 import Testing
 
 @testable import SupacodeSettingsShared
-@testable import supacode
+@testable import vantage
 
 struct OpenCodePluginInstallerTests {
   private let fileManager = FileManager.default
 
   private func makeTempHomeURL() -> URL {
     URL(fileURLWithPath: NSTemporaryDirectory())
-      .appendingPathComponent("supacode-opencode-plugin-\(UUID().uuidString)", isDirectory: true)
+      .appendingPathComponent("vantage-opencode-plugin-\(UUID().uuidString)", isDirectory: true)
   }
 
   @Test func installWritesPluginFileWhenMissing() throws {
@@ -59,7 +59,7 @@ struct OpenCodePluginInstallerTests {
     let installer = OpenCodePluginInstaller(homeDirectoryURL: homeURL, fileManager: fileManager)
     try fileManager.createDirectory(
       at: installer.pluginFileURL.deletingLastPathComponent(), withIntermediateDirectories: true)
-    // A stale Supacode plugin (carries the ownership marker but differs).
+    // A stale Vantage plugin (carries the ownership marker but differs).
     try "// \(OpenCodePluginContent.ownershipMarker)\n// old shape"
       .write(to: installer.pluginFileURL, atomically: true, encoding: .utf8)
 
@@ -74,7 +74,7 @@ struct OpenCodePluginInstallerTests {
     try fileManager.createDirectory(
       at: installer.pluginFileURL.deletingLastPathComponent(), withIntermediateDirectories: true)
     // A user's own plugin at the same path must NOT report `.outdated` (which
-    // auto-update would overwrite) — it isn't Supacode's to manage.
+    // auto-update would overwrite) — it isn't Vantage's to manage.
     try "export const NotSupacode = async () => ({})\n"
       .write(to: installer.pluginFileURL, atomically: true, encoding: .utf8)
 
@@ -122,7 +122,7 @@ struct OpenCodePluginInstallerTests {
   @Test func pluginFilePointsToExpectedPath() {
     let homeURL = URL(fileURLWithPath: "/Users/test")
     let installer = OpenCodePluginInstaller(homeDirectoryURL: homeURL, fileManager: fileManager)
-    #expect(installer.pluginFileURL.path == "/Users/test/.config/opencode/plugins/supacode-presence.js")
+    #expect(installer.pluginFileURL.path == "/Users/test/.config/opencode/plugins/vantage-presence.js")
   }
 
   // MARK: - Generated source.

@@ -1,7 +1,7 @@
 import Foundation
 import Testing
 
-@testable import supacode
+@testable import vantage
 
 @MainActor
 struct GhosttyRuntimeBundledOverridesTests {
@@ -26,10 +26,10 @@ struct GhosttyRuntimeBundledOverridesTests {
     }
   }
 
-  /// `TERM_PROGRAM` reports Supacode with its version (issue #440).
+  /// `TERM_PROGRAM` reports Vantage with its version (issue #440).
   @Test func terminalProgramOverridesIdentifySupacode() {
     let overrides = GhosttyRuntime.terminalProgramOverrides(version: "1.2.3")
-    #expect(overrides.contains("env = TERM_PROGRAM=supacode"))
+    #expect(overrides.contains("env = TERM_PROGRAM=vantage"))
     #expect(overrides.contains("env = TERM_PROGRAM_VERSION=1.2.3"))
   }
 
@@ -37,7 +37,7 @@ struct GhosttyRuntimeBundledOverridesTests {
   @Test func terminalProgramOverridesFallBackWhenVersionUnavailable() {
     for version: String? in [nil, "", "   "] {
       let overrides = GhosttyRuntime.terminalProgramOverrides(version: version)
-      #expect(overrides.contains("env = TERM_PROGRAM=supacode"))
+      #expect(overrides.contains("env = TERM_PROGRAM=vantage"))
       #expect(overrides.contains("env = TERM_PROGRAM_VERSION=unknown"))
     }
   }

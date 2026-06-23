@@ -1,6 +1,6 @@
 import Foundation
 
-/// Installs (and removes) the Supacode presence plugin for OpenCode.
+/// Installs (and removes) the Vantage presence plugin for OpenCode.
 ///
 /// Unlike the Claude/Kiro JSON-merge installers, OpenCode loads plugins as
 /// files from `~/.config/opencode/plugins/`, so this mirrors `CLISkillInstaller`
@@ -19,9 +19,9 @@ nonisolated struct OpenCodePluginInstaller {
     self.fileManager = fileManager
   }
 
-  /// `.installed` only on a byte-for-byte match, so an older Supacode version's
+  /// `.installed` only on a byte-for-byte match, so an older Vantage version's
   /// plugin reports `.outdated` and the next install upgrades it in place. A
-  /// file Supacode does NOT own (no ownership marker) reports `.notInstalled`,
+  /// file Vantage does NOT own (no ownership marker) reports `.notInstalled`,
   /// not `.outdated`, so auto-update never silently overwrites a user plugin
   /// that happens to share the name — symmetric with `uninstall`.
   func installState() -> ComponentInstallState {
@@ -38,7 +38,7 @@ nonisolated struct OpenCodePluginInstaller {
   }
 
   func uninstall() throws {
-    // Only remove a file Supacode owns — never clobber a user plugin that
+    // Only remove a file Vantage owns — never clobber a user plugin that
     // happens to share the name.
     guard let contents = try? String(contentsOf: pluginFileURL, encoding: .utf8),
       contents.contains(OpenCodePluginContent.ownershipMarker)

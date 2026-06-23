@@ -2,7 +2,7 @@ import Foundation
 import Testing
 
 @testable import SupacodeSettingsShared
-@testable import supacode
+@testable import vantage
 
 struct TerminalLayoutSnapshotTests {
   @Test func decodeLegacyTintColorPredefinedString() throws {
@@ -130,7 +130,7 @@ struct TerminalLayoutSnapshotTests {
   @Test func customTitleRoundTripsInSnapshot() throws {
     let tabSnapshot = TerminalLayoutSnapshot.TabSnapshot(
       id: UUID(),
-      title: "supacode 1",
+      title: "vantage 1",
       customTitle: "my-tab",
       icon: nil,
       tintColor: nil,

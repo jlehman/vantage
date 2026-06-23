@@ -5,7 +5,7 @@ script_dir="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 repo_root="${SRCROOT:-$(cd "${script_dir}/.." && pwd)}"
 
 app_path="${SUPACODE_APP_PATH:-${repo_root}/build/supacode/Build/Products/Debug/supacode.app}"
-cli_path="${SUPACODE_CLI:-${app_path}/Contents/Resources/bin/supacode}"
+cli_path="${SUPACODE_CLI:-${app_path}/Contents/Resources/bin/vantage}"
 zmx_path="${ZMX:-${app_path}/Contents/Resources/zmx/zmx}"
 target_repo="${repo_root}"
 worktree_id=""

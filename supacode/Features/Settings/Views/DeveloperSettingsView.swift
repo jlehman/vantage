@@ -12,7 +12,7 @@ struct DeveloperSettingsView: View {
         DeeplinkRow()
         CLIInstallRow(store: store)
       } footer: {
-        Text("Symlinks `supacode` to `/usr/local/bin`. This is not required to run `supacode` in the app terminals.")
+        Text("Symlinks `vantage` to `/usr/local/bin`. This is not required to run `vantage` in the app terminals.")
       }
       Section {
         Toggle(isOn: $store.richAgentNotificationsEnabled) {
@@ -42,9 +42,9 @@ struct DeveloperSettingsView: View {
         Toggle(isOn: $store.autoUpdateAgentIntegrationsEnabled) {
           Text("Automatically update agent integrations")
           Text(
-            "Re-installs hooks for any agent reporting an outdated integration when Supacode comes to the foreground.")
+            "Re-installs hooks for any agent reporting an outdated integration when Vantage comes to the foreground.")
         }
-        .help("Silently re-applies the canonical hook layout to outdated agent integrations when Supacode activates.")
+        .help("Silently re-applies the canonical hook layout to outdated agent integrations when Vantage activates.")
       }
     }
     .formStyle(.grouped)
@@ -180,7 +180,7 @@ extension SkillAgent {
       Hooks in `~/.codex/hooks.json` and skill in `~/.codex/skills/`. After installing, trust the hooks in Codex; \
       the badge appears once you send the first message.
       """
-    case .copilot: "Hooks in `~/.copilot/hooks/supacode.json` and skill in `~/.copilot/skills/`."
+    case .copilot: "Hooks in `~/.copilot/hooks/vantage.json` and skill in `~/.copilot/skills/`."
     case .kiro: "Hooks in `~/.kiro/agents/` and skill in `~/.kiro/skills/`."
     case .opencode: "Plugin in `~/.config/opencode/plugins/` and skill in `~/.config/opencode/skills/`."
     case .pi: "Extension in `~/.pi/agent/extensions/` and skill in `~/.pi/agent/skills/`."

@@ -3,18 +3,18 @@ import Foundation
 import GhosttyKit
 import Testing
 
-@testable import supacode
+@testable import vantage
 
 @MainActor
 struct GhosttySurfaceViewTests {
   @Test func normalizedWorkingDirectoryPathRemovesTrailingSlashForNonRootPath() {
     #expect(
-      GhosttySurfaceView.normalizedWorkingDirectoryPath("/Users/onevcat/Sync/github/supacode/")
-        == "/Users/onevcat/Sync/github/supacode"
+      GhosttySurfaceView.normalizedWorkingDirectoryPath("/Users/onevcat/Sync/github/vantage/")
+        == "/Users/onevcat/Sync/github/vantage"
     )
     #expect(
-      GhosttySurfaceView.normalizedWorkingDirectoryPath("/Users/onevcat/Sync/github/supacode///")
-        == "/Users/onevcat/Sync/github/supacode"
+      GhosttySurfaceView.normalizedWorkingDirectoryPath("/Users/onevcat/Sync/github/vantage///")
+        == "/Users/onevcat/Sync/github/vantage"
     )
   }
 

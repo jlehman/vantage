@@ -23,12 +23,12 @@ nonisolated struct AgentHookSettingsFileInstaller {
     JSONHookSettingsFile(fileManager: fileManager, errors: errors)
   }
 
-  /// Compare the set of Supacode-managed commands present in the settings
+  /// Compare the set of Vantage-managed commands present in the settings
   /// file against the expected (canonical) set:
-  /// - `.installed`     — actual Supacode commands == expected, no extras
-  /// - `.notInstalled`  — no Supacode-managed commands at all
+  /// - `.installed`     — actual Vantage commands == expected, no extras
+  /// - `.notInstalled`  — no Vantage-managed commands at all
   /// - `.outdated`      — some present, but the set differs (extras, missing,
-  ///                      or stale variants from older Supacode versions)
+  ///                      or stale variants from older Vantage versions)
   func installState(
     settingsURL: URL,
     hookGroupsByEvent: [String: [JSONValue]]
@@ -48,7 +48,7 @@ nonisolated struct AgentHookSettingsFileInstaller {
     }
   }
 
-  /// All Supacode-marked `command` strings under the `hooks` map. Filters
+  /// All Vantage-marked `command` strings under the `hooks` map. Filters
   /// via `AgentHookCommandOwnership` so user-authored hooks are never
   /// treated as "ours."
   private static func installedSupacodeCommands(
@@ -94,9 +94,9 @@ nonisolated struct AgentHookSettingsFileInstaller {
     return commands
   }
 
-  /// Removes every Supacode-managed command (current and legacy) from the
+  /// Removes every Vantage-managed command (current and legacy) from the
   /// settings file. User-authored hooks are preserved — the trailing
-  /// `# supacode-managed-hook` sentinel is the source of truth for
+  /// `# vantage-managed-hook` sentinel is the source of truth for
   /// ownership (see `AgentHookCommandOwnership`).
   func uninstall(
     settingsURL: URL,
@@ -115,7 +115,7 @@ nonisolated struct AgentHookSettingsFileInstaller {
     try writeSettings(settingsObject, to: settingsURL)
   }
 
-  /// `install = uninstall + append`: strip every Supacode-managed entry from
+  /// `install = uninstall + append`: strip every Vantage-managed entry from
   /// the existing hook map (current + legacy + pre-collapse splits), then
   /// append the canonical groups 1:1. Done in a single read-modify-write so
   /// a crash mid-update can't leave the file half-pruned.
@@ -138,7 +138,7 @@ nonisolated struct AgentHookSettingsFileInstaller {
     try writeSettings(settingsObject, to: settingsURL)
   }
 
-  /// Builds a fresh hooks map with every Supacode-managed command
+  /// Builds a fresh hooks map with every Vantage-managed command
   /// stripped. Builds a new dict instead of mutating while iterating, to
   /// guarantee no event is silently skipped during the prune.
   private func pruneAllSupacodeCommands(
@@ -169,8 +169,8 @@ nonisolated struct AgentHookSettingsFileInstaller {
     JSONHookSettingsFile.isFileNotFound(error)
   }
 
-  /// Strip every Supacode-managed command from the group. User-authored
-  /// hooks (no `# supacode-managed-hook` sentinel) survive untouched.
+  /// Strip every Vantage-managed command from the group. User-authored
+  /// hooks (no `# vantage-managed-hook` sentinel) survive untouched.
   private func stripAllSupacodeCommands(from group: JSONValue) -> JSONValue? {
     guard var groupObject = group.objectValue else { return group }
     guard let hooksValue = groupObject["hooks"] else { return group }

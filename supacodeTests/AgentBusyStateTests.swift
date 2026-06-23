@@ -5,7 +5,7 @@ import Foundation
 import SupacodeSettingsShared
 import Testing
 
-@testable import supacode
+@testable import vantage
 
 @MainActor
 struct AgentBusyStateTests {

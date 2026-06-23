@@ -2,7 +2,7 @@ import Foundation
 import Testing
 
 @testable import SupacodeSettingsShared
-@testable import supacode
+@testable import vantage
 
 struct OpenWorktreeActionTests {
   @Test func menuOrderIncludesExpectedWorkspaceActions() {
@@ -183,7 +183,7 @@ struct OpenWorktreeActionTests {
       at: rootURL.appending(path: "Pods/Generated.xcworkspace"),
       withIntermediateDirectories: true
     )
-    let projectURL = rootURL.appending(path: "Supacode.xcodeproj")
+    let projectURL = rootURL.appending(path: "Vantage.xcodeproj")
     try FileManager.default.createDirectory(at: projectURL, withIntermediateDirectories: true)
 
     let resolved = WorkspaceOpenResolver.resolveFirstTarget(
@@ -201,7 +201,7 @@ struct OpenWorktreeActionTests {
   @Test func xcodeResolverDoesNotDescendIntoProjectPackages() throws {
     let rootURL = try Self.makeTemporaryDirectory()
     defer { try? FileManager.default.removeItem(at: rootURL) }
-    let projectURL = rootURL.appending(path: "Supacode.xcodeproj")
+    let projectURL = rootURL.appending(path: "Vantage.xcodeproj")
     try FileManager.default.createDirectory(
       at: projectURL.appending(path: "project.xcworkspace"),
       withIntermediateDirectories: true
@@ -218,10 +218,10 @@ struct OpenWorktreeActionTests {
   @Test func xcodeResolverStillReturnsTopLevelWorkspacePackages() throws {
     let rootURL = try Self.makeTemporaryDirectory()
     defer { try? FileManager.default.removeItem(at: rootURL) }
-    let workspaceURL = rootURL.appending(path: "Supacode.xcworkspace")
+    let workspaceURL = rootURL.appending(path: "Vantage.xcworkspace")
     try FileManager.default.createDirectory(at: workspaceURL, withIntermediateDirectories: true)
     try FileManager.default.createDirectory(
-      at: rootURL.appending(path: "Supacode.xcodeproj/project.xcworkspace"),
+      at: rootURL.appending(path: "Vantage.xcodeproj/project.xcworkspace"),
       withIntermediateDirectories: true
     )
 
@@ -254,7 +254,7 @@ struct OpenWorktreeActionTests {
   @Test func resolverHonorsSearchMaxDepth() throws {
     let rootURL = try Self.makeTemporaryDirectory()
     defer { try? FileManager.default.removeItem(at: rootURL) }
-    let deepProjectURL = rootURL.appending(path: "Examples/macOS/App/Supacode.xcodeproj")
+    let deepProjectURL = rootURL.appending(path: "Examples/macOS/App/Vantage.xcodeproj")
     try FileManager.default.createDirectory(at: deepProjectURL, withIntermediateDirectories: true)
 
     let defaultDepth = WorkspaceOpenResolver.resolveFirstTarget(
@@ -272,7 +272,7 @@ struct OpenWorktreeActionTests {
 
   private static func makeTemporaryDirectory() throws -> URL {
     let url = FileManager.default.temporaryDirectory.appending(
-      path: "supacode-open-target-\(UUID().uuidString)"
+      path: "vantage-open-target-\(UUID().uuidString)"
     )
     try FileManager.default.createDirectory(at: url, withIntermediateDirectories: true)
     return url

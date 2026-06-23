@@ -19,11 +19,11 @@ nonisolated enum SocketDiscovery {
     return kill(pid, 0) == 0
   }
 
-  /// Lists all live Supacode sockets in `/tmp/supacode-<uid>/`.
+  /// Lists all live Supacode sockets in `/tmp/vantage-<uid>/`.
   /// Throws when the directory exists but cannot be read (e.g. permission denied).
   static func listAll() throws -> [String] {
     let uid = getuid()
-    let directory = "/tmp/supacode-\(uid)"
+    let directory = "/tmp/vantage-\(uid)"
     let entries: [String]
     do {
       entries = try FileManager.default.contentsOfDirectory(atPath: directory)

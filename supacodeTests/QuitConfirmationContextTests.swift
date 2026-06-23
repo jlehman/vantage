@@ -1,6 +1,6 @@
 import Testing
 
-@testable import supacode
+@testable import vantage
 
 /// Direct unit tests for the 4-quadrant labels / message matrix. Cheaper to
 /// drive than a full TestStore for each (terminateOnQuit, hasBlockingScripts)

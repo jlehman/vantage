@@ -52,8 +52,8 @@ nonisolated struct WorktreeAdminEntry: Sendable {
 }
 
 // JSON payload written to `<git-common-dir>/worktrees/<name>/locked`
-// for every worktree Supacode manages. Detection keys on `owner ==
-// "supacode"`; the other fields are forensic so a stranded lock file
+// for every worktree Vantage manages. Detection keys on `owner ==
+// "vantage"`; the other fields are forensic so a stranded lock file
 // can be traced back to a specific build.
 nonisolated struct SupacodeWorktreeLockMetadata: Codable, Sendable, Equatable {
   let owner: String
@@ -63,7 +63,7 @@ nonisolated struct SupacodeWorktreeLockMetadata: Codable, Sendable, Equatable {
 }
 
 struct GitClient {
-  nonisolated static let supacodeLockOwner = "supacode"
+  nonisolated static let supacodeLockOwner = "vantage"
 
   private struct WorktreeSortEntry {
     let worktree: Worktree
@@ -226,7 +226,7 @@ struct GitClient {
     _ = try await runGit(operation: .worktreeCreate, arguments: arguments)
   }
 
-  // Backfill-only: never drop Supacode-owned locks here. Supacode-initiated
+  // Backfill-only: never drop Vantage-owned locks here. Vantage-initiated
   // `removeWorktree` is the sole release path.
   nonisolated func reconcileSupacodeLocks(for repoRoot: URL) async {
     // Folder-kind roots have no git admin dir; skip the shell-outs.
@@ -249,7 +249,7 @@ struct GitClient {
       guard exists else { continue }
       Self.writeSupacodeLock(at: entry.adminDirectory)
       gitLogger.info(
-        "Backfilled Supacode lock for worktree \(entry.worktreeDirectory.lastPathComponent)"
+        "Backfilled Vantage lock for worktree \(entry.worktreeDirectory.lastPathComponent)"
       )
     }
     do {
@@ -346,7 +346,7 @@ struct GitClient {
     let path = lockFile.path(percentEncoded: false)
     guard FileManager.default.fileExists(atPath: path) else { return }
     // Don't strip a user's `git worktree lock --reason "..."`; only
-    // remove the file when it parses as a Supacode-owned payload.
+    // remove the file when it parses as a Vantage-owned payload.
     guard let raw = try? String(contentsOf: lockFile, encoding: .utf8),
       parseSupacodeLockMetadata(from: raw) != nil
     else { return }
@@ -372,7 +372,7 @@ struct GitClient {
     return payload
   }
 
-  nonisolated private static let minimalSupacodeLockPayload = #"{"owner":"supacode"}"#
+  nonisolated private static let minimalSupacodeLockPayload = #"{"owner":"vantage"}"#
 
   nonisolated static func parseSupacodeLockMetadata(
     from reason: String
@@ -1017,7 +1017,7 @@ struct GitClient {
     ]
     for baseURL in candidates {
       let trashBaseURL = baseURL.appending(
-        path: "supacode-worktree-trash",
+        path: "vantage-worktree-trash",
         directoryHint: URL.DirectoryHint.isDirectory
       )
       do {

@@ -2,7 +2,7 @@ import Foundation
 import Testing
 
 @testable import SupacodeSettingsShared
-@testable import supacode
+@testable import vantage
 
 actor LineChangesShellCallStore {
   private(set) var calls: [[String]] = []

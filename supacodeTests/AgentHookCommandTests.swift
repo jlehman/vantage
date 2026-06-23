@@ -2,7 +2,7 @@ import Foundation
 import Testing
 
 @testable import SupacodeSettingsShared
-@testable import supacode
+@testable import vantage
 
 struct AgentHookCommandTests {
   // MARK: - Command generation.
@@ -62,7 +62,7 @@ struct AgentHookCommandTests {
 
   @Test func compositeGuardsOnSurfaceOnly() {
     // OSC is the only transport now, and signals are unauthenticated: the guard
-    // is just the surface id (the no-op-outside-Supacode gate). The token and the
+    // is just the surface id (the no-op-outside-Vantage gate). The token and the
     // worktree / tab ids the socket envelope carried are gone.
     let command = AgentHookSettingsCommand.compositeCommand(
       events: [.busy], forwardStdinAsNotification: false, agent: .claude)
@@ -112,7 +112,7 @@ struct AgentHookCommandTests {
   }
 
   @Test func legacyCommandIsRecognized() {
-    let legacy = "SUPACODE_CLI_PATH=/usr/bin/supacode agent-hook --stop"
+    let legacy = "SUPACODE_CLI_PATH=/usr/bin/vantage agent-hook --stop"
     #expect(AgentHookCommandOwnership.isSupacodeManagedCommand(legacy))
     #expect(AgentHookCommandOwnership.isLegacyCommand(legacy))
   }
@@ -136,7 +136,7 @@ struct AgentHookCommandTests {
   @Test func userAuthoredCommandReferencingSocketEnvVarIsNotOwned() {
     // A power user's hook that legitimately references the documented
     // `SUPACODE_SOCKET_PATH` env var must NOT be classified as
-    // Supacode-managed, otherwise install would silently strip it.
+    // Vantage-managed, otherwise install would silently strip it.
     let userHook = #"echo "saw $SUPACODE_SOCKET_PATH" >> ~/my-debug.log"#
     #expect(!AgentHookCommandOwnership.isSupacodeManagedCommand(userHook))
     #expect(!AgentHookCommandOwnership.isLegacyCommand(userHook))
@@ -155,7 +155,7 @@ struct AgentHookCommandTests {
   @Test func verbatimEnvCheckGuardWithoutSentinelIsLegacy() {
     // Lock the intent of the `envCheck` fingerprint: a command that
     // carries the verbatim 4-var guard but lacks the sentinel is a
-    // pre-sentinel Supacode hook and must be pruned on install/uninstall.
+    // pre-sentinel Vantage hook and must be pruned on install/uninstall.
     let legacy =
       AgentHookSettingsCommand.envCheck
       + #" && echo "$SUPACODE_WORKTREE_ID $SUPACODE_TAB_ID $SUPACODE_SURFACE_ID 0""#
@@ -166,12 +166,12 @@ struct AgentHookCommandTests {
 
   @Test func legacyCLIShimSessionEventCommandIsRecognized() {
     // The transitional shape (between the agent-hook CLI era and the
-    // direct-nc era) shelled out to `supacode integration event`.
-    // Strip-on-update must still recognise it as Supacode-managed,
+    // direct-nc era) shelled out to `vantage integration event`.
+    // Strip-on-update must still recognise it as Vantage-managed,
     // otherwise the canonical hook is appended on top instead of
     // replacing it, producing duplicate SessionStart hooks.
     let legacy =
-      #"[ -n "${SUPACODE_SOCKET_PATH:-}" ] && supacode integration event session_start"#
+      #"[ -n "${SUPACODE_SOCKET_PATH:-}" ] && vantage integration event session_start"#
       + #" --agent claude --pid "$PPID" 2>/dev/null || true"#
     #expect(AgentHookCommandOwnership.isSupacodeManagedCommand(legacy))
     #expect(AgentHookCommandOwnership.isLegacyCommand(legacy))
@@ -312,7 +312,7 @@ struct AgentHookCommandTests {
       + #"case "$__tty" in *[0-9]*) __tty="/dev/${__tty#/dev/}";; *) __tty="/dev/tty";; esac; "#
       + #"__sp=""; [ -n "${SUPACODE_SOCKET_PATH:-}" ] && __sp=";pid=$PPID"; "#
       + #"printf '\033]3008;start=claude;event=busy%s\033\\' "$__sp" > "$__tty"; "#
-      + #"} >/dev/null 2>&1 || true # supacode-managed-hook"#
+      + #"} >/dev/null 2>&1 || true # vantage-managed-hook"#
     #expect(composite == expected)
   }
 
@@ -322,7 +322,7 @@ struct AgentHookCommandTests {
     let command = AgentHookSettingsCommand.compositeCommand(
       events: [.busy], forwardStdinAsNotification: false, agent: .claude)
     // OSC is the sole transport, gated only by the surface id (no-op outside
-    // Supacode). It fires local and remote alike, and carries no token.
+    // Vantage). It fires local and remote alike, and carries no token.
     #expect(command.contains("]3008;start=claude;event=busy"))
     #expect(command.contains(#"[ -n "${SUPACODE_SURFACE_ID:-}" ]"#))
     #expect(!command.contains("token="))
@@ -500,8 +500,8 @@ struct AgentHookCommandTests {
   }
 
   @Test func emitsNothingOutsideSupacode() throws {
-    // No SUPACODE_SURFACE_ID = not a Supacode surface: the guard short-circuits
-    // and the command writes nothing to the tty (the inert-outside-Supacode
+    // No SUPACODE_SURFACE_ID = not a Vantage surface: the guard short-circuits
+    // and the command writes nothing to the tty (the inert-outside-Vantage
     // contract).
     let command = AgentHookSettingsCommand.compositeCommand(
       events: [.busy], forwardStdinAsNotification: true, agent: .claude)
@@ -520,7 +520,7 @@ struct AgentHookCommandTests {
         events: [.sessionStart], forwardStdinAsNotification: false, agent: .claude),
       env: [
         "SUPACODE_SURFACE_ID": surfaceID.uuidString,
-        "SUPACODE_SOCKET_PATH": "/tmp/supacode-rt-\(UUID().uuidString)",
+        "SUPACODE_SOCKET_PATH": "/tmp/vantage-rt-\(UUID().uuidString)",
       ]
     )
     let signal = try #require(Self.parsePresence(fromTTY: captured))
@@ -572,7 +572,7 @@ struct AgentHookCommandTests {
     #"[ -n "${SUPACODE_SURFACE_ID:-}" ] && { "#
     + #"__tty=$(ps -o tty= -p "$PPID" 2>/dev/null | tr -d '[:space:]'); "#
     + #"case "$__tty" in *[0-9]*) __tty="/dev/${__tty#/dev/}";; *) __tty="/dev/tty";; esac; "#
-  private static let suppressTail = #"} >/dev/null 2>&1 || true # supacode-managed-hook"#
+  private static let suppressTail = #"} >/dev/null 2>&1 || true # vantage-managed-hook"#
 
   private static func presence(_ action: String, _ agent: String, _ event: String) -> String {
     #"__sp=""; [ -n "${SUPACODE_SOCKET_PATH:-}" ] && __sp=";pid=$PPID"; "#
@@ -617,7 +617,7 @@ struct AgentHookCommandTests {
     _ command: String, env: [String: String], stdin: String = ""
   ) throws -> String {
     let workDir = URL(fileURLWithPath: NSTemporaryDirectory())
-      .appendingPathComponent("supacode-hook-tty-\(UUID().uuidString)", isDirectory: true)
+      .appendingPathComponent("vantage-hook-tty-\(UUID().uuidString)", isDirectory: true)
     try FileManager.default.createDirectory(at: workDir, withIntermediateDirectories: true)
     defer { try? FileManager.default.removeItem(at: workDir) }
     let captureFile = workDir.appendingPathComponent("tty")
@@ -631,8 +631,8 @@ struct AgentHookCommandTests {
     process.executableURL = URL(fileURLWithPath: "/bin/zsh")
     process.arguments = ["-c", patched]
     var environment = ProcessInfo.processInfo.environment
-    // The host may already export Supacode-surface vars (tests can run inside a
-    // Supacode surface); clear them so every absent-variable assertion is genuine.
+    // The host may already export Vantage-surface vars (tests can run inside a
+    // Vantage surface); clear them so every absent-variable assertion is genuine.
     environment.removeValue(forKey: "SUPACODE_SOCKET_PATH")
     environment.removeValue(forKey: "SUPACODE_SURFACE_ID")
     for (key, value) in env { environment[key] = value }

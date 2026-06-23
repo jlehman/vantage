@@ -8,7 +8,7 @@ import Testing
 
 @testable import SupacodeSettingsFeature
 @testable import SupacodeSettingsShared
-@testable import supacode
+@testable import vantage
 
 @MainActor
 @Suite(.serialized)
@@ -488,7 +488,7 @@ struct AppFeatureDeeplinkTests {
   }
 
   @Test(.dependencies) func stopScriptDeeplinkWhenNotRunningShowsAlert() async {
-    // A user running `supacode worktree stop --script <uuid>` for a script
+    // A user running `vantage worktree stop --script <uuid>` for a script
     // that isn't currently running should get an explicit alert, not a
     // silent success that misleads the CLI into reporting ok:true.
     let worktree = makeWorktree()
@@ -1319,7 +1319,7 @@ struct AppFeatureDeeplinkTests {
     }
     store.exhaustivity = .off
 
-    await store.send(.deeplinkReceived(URL(string: "supacode://worktree/x")!)) {
+    await store.send(.deeplinkReceived(URL(string: "vantage://worktree/x")!)) {
       $0.pendingDeeplinks = [.worktree(id: worktree.id, action: .select)]
     }
 
@@ -1361,11 +1361,11 @@ struct AppFeatureDeeplinkTests {
     store.exhaustivity = .off
 
     // First deeplink queued.
-    await store.send(.deeplinkReceived(URL(string: "supacode://first")!)) {
+    await store.send(.deeplinkReceived(URL(string: "vantage://first")!)) {
       $0.pendingDeeplinks = [.worktree(id: worktree.id, action: .pin)]
     }
     // Second deeplink appended.
-    await store.send(.deeplinkReceived(URL(string: "supacode://second")!)) {
+    await store.send(.deeplinkReceived(URL(string: "vantage://second")!)) {
       $0.pendingDeeplinks = [
         .worktree(id: worktree.id, action: .pin),
         .worktree(id: worktree.id, action: .select),
@@ -1400,7 +1400,7 @@ struct AppFeatureDeeplinkTests {
     store.exhaustivity = .off
 
     let encoded = worktree.id.rawValue.addingPercentEncoding(withAllowedCharacters: .alphanumerics)!
-    let url = URL(string: "supacode://worktree/\(encoded)")!
+    let url = URL(string: "vantage://worktree/\(encoded)")!
     await store.send(.deeplinkReceived(url))
     await store.receive(\.deeplink)
     await store.receive(\.repositories.selectWorktree)
@@ -1421,7 +1421,7 @@ struct AppFeatureDeeplinkTests {
     store.exhaustivity = .off
 
     await store.send(.deeplinkReceived(URL(string: "https://example.com")!))
-    // Non-supacode scheme is silently ignored (debug log only, no alert).
+    // Non-vantage scheme is silently ignored (debug log only, no alert).
     #expect(store.state.alert == nil)
   }
 
@@ -1439,7 +1439,7 @@ struct AppFeatureDeeplinkTests {
     }
     store.exhaustivity = .off
 
-    await store.send(.deeplinkReceived(URL(string: "supacode://unknown-host")!))
+    await store.send(.deeplinkReceived(URL(string: "vantage://unknown-host")!))
     #expect(store.state.alert != nil)
   }
 
@@ -1465,7 +1465,7 @@ struct AppFeatureDeeplinkTests {
     }
     store.exhaustivity = .off
 
-    await store.send(.deeplinkReceived(URL(string: "supacode://worktree/x")!)) {
+    await store.send(.deeplinkReceived(URL(string: "vantage://worktree/x")!)) {
       $0.pendingDeeplinks = [.worktree(id: worktree.id, action: .select)]
     }
 
@@ -1499,7 +1499,7 @@ struct AppFeatureDeeplinkTests {
     }
     store.exhaustivity = .off
 
-    await store.send(.deeplinkReceived(URL(string: "supacode://worktree/x")!)) {
+    await store.send(.deeplinkReceived(URL(string: "vantage://worktree/x")!)) {
       $0.pendingDeeplinks = [.worktree(id: worktree.id, action: .select)]
     }
 
@@ -1766,7 +1766,7 @@ struct AppFeatureDeeplinkTests {
     let (readFD, writeFD) = makePipe()
     defer { close(readFD) }
 
-    await store.send(.deeplinkReceived(URL(string: "supacode://worktree/x")!, source: .socket, responseFD: writeFD))
+    await store.send(.deeplinkReceived(URL(string: "vantage://worktree/x")!, source: .socket, responseFD: writeFD))
     await store.finish()
 
     let response = readPipeJSON(readFD)
@@ -2132,7 +2132,7 @@ struct AppFeatureDeeplinkTests {
       repositories: makeRepositoriesState(worktree: worktree),
       settings: SettingsFeature.State(),
     )
-    initialState.alert = AlertState { TextState("Quit Supacode?") }
+    initialState.alert = AlertState { TextState("Quit Vantage?") }
     let store = TestStore(initialState: initialState) {
       AppFeature()
     } withDependencies: {
@@ -2394,7 +2394,7 @@ struct AppFeatureDeeplinkTests {
     }
     store.exhaustivity = .off
 
-    await store.send(.deeplinkReceived(URL(string: "supacode://bad")!, source: .socket, responseFD: writeFD))
+    await store.send(.deeplinkReceived(URL(string: "vantage://bad")!, source: .socket, responseFD: writeFD))
     await store.finish()
 
     let response = readPipeJSON(readFD)

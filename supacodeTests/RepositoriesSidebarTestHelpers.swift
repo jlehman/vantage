@@ -1,7 +1,7 @@
 import ComposableArchitecture
 import Foundation
 
-@testable import supacode
+@testable import vantage
 
 extension AppFeature.State {
   /// Mirrors AppFeature's post-reduce hook for TestStore expectations.

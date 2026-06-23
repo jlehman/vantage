@@ -2,7 +2,7 @@ import Foundation
 import SupacodeSettingsShared
 import Testing
 
-@testable import supacode
+@testable import vantage
 
 struct CodingAgentsSidebarCardModeTests {
   @Test func anyOutdatedAgentReturnsUpdatesAvailableWithJustThoseAgents() {

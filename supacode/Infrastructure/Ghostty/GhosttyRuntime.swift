@@ -535,7 +535,7 @@ final class GhosttyRuntime {
     return min(max(value, 0), 1)
   }
 
-  /// Applies Supacode-specific config (padding values, transparent surface)
+  /// Applies Vantage-specific config (padding values, transparent surface)
   /// that takes precedence over user settings.
   ///
   /// `background-opacity = 0` makes Ghostty's surface render with alpha 0 so
@@ -552,7 +552,7 @@ final class GhosttyRuntime {
     background-opacity = 0
     """
 
-  /// Reports Supacode in `TERM_PROGRAM` so programs detect the real host
+  /// Reports Vantage in `TERM_PROGRAM` so programs detect the real host
   /// terminal (issue #440); loaded after the user config so it wins. The version
   /// is always emitted because Ghostty's `env` map can override a key but not
   /// clear its seeded version, so a blank value falls back to a placeholder.
@@ -562,7 +562,7 @@ final class GhosttyRuntime {
     let trimmed = version?.trimmingCharacters(in: .whitespacesAndNewlines)
     let resolved = trimmed.flatMap { $0.isEmpty ? nil : $0 } ?? "unknown"
     return """
-      env = TERM_PROGRAM=supacode
+      env = TERM_PROGRAM=vantage
       env = TERM_PROGRAM_VERSION=\(resolved)
       """
   }
@@ -574,7 +574,7 @@ final class GhosttyRuntime {
   }
 
   private static func loadBundledOverrides(into config: ghostty_config_t) {
-    let tempURL = FileManager.default.temporaryDirectory.appendingPathComponent("supacode-defaults.conf")
+    let tempURL = FileManager.default.temporaryDirectory.appendingPathComponent("vantage-defaults.conf")
     let contents = [bundledOverridesString, terminalProgramOverrides(version: appVersion)]
       .joined(separator: "\n")
     do {
@@ -586,15 +586,15 @@ final class GhosttyRuntime {
     tempURL.path.withCString { ghostty_config_load_file(config, $0) }
   }
 
-  /// Loads the bundled Supacode light/dark theme plus its opacity and blur. No-op when sync is disabled.
+  /// Loads the bundled Vantage light/dark theme plus its opacity and blur. No-op when sync is disabled.
   private static func loadBundledTheme(into config: ghostty_config_t, enabled: Bool) {
     guard enabled else { return }
     guard
-      let lightPath = Bundle.main.path(forResource: "Supacode Light", ofType: nil),
-      let darkPath = Bundle.main.path(forResource: "Supacode Dark", ofType: nil)
+      let lightPath = Bundle.main.path(forResource: "Vantage Light", ofType: nil),
+      let darkPath = Bundle.main.path(forResource: "Vantage Dark", ofType: nil)
     else {
-      assertionFailure("Bundled Supacode themes missing from app bundle.")
-      logger.warning("Bundled Supacode themes missing from app bundle.")
+      assertionFailure("Bundled Vantage themes missing from app bundle.")
+      logger.warning("Bundled Vantage themes missing from app bundle.")
       return
     }
     let contents = """
@@ -602,7 +602,7 @@ final class GhosttyRuntime {
       background-opacity = 0.9
       background-blur = macos-glass-regular
       """
-    let tempURL = FileManager.default.temporaryDirectory.appendingPathComponent("supacode-theme.conf")
+    let tempURL = FileManager.default.temporaryDirectory.appendingPathComponent("vantage-theme.conf")
     do {
       try contents.write(to: tempURL, atomically: true, encoding: .utf8)
     } catch {
@@ -715,7 +715,7 @@ final class GhosttyRuntime {
     backgroundColor().isLightColor ? .aqua : .darkAqua
   }
 
-  // Uses the app's effective appearance — fine for Supacode's single-window
+  // Uses the app's effective appearance — fine for Vantage's single-window
   // model. If per-window appearance overrides are added, thread the owning
   // window through and resolve under `window.effectiveAppearance` instead.
   func backgroundColorScheme() -> ColorScheme {

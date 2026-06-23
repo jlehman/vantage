@@ -8,7 +8,7 @@ import Testing
 
 @testable import SupacodeSettingsFeature
 @testable import SupacodeSettingsShared
-@testable import supacode
+@testable import vantage
 
 @MainActor
 struct SettingsFeatureTests {
@@ -302,7 +302,7 @@ struct SettingsFeatureTests {
       .standardizedFileURL
       .path(percentEncoded: false)
     let storage = SettingsTestStorage()
-    let settingsFileURL = URL(fileURLWithPath: "/tmp/supacode-settings-\(UUID().uuidString).json")
+    let settingsFileURL = URL(fileURLWithPath: "/tmp/vantage-settings-\(UUID().uuidString).json")
     let store = TestStore(initialState: SettingsFeature.State()) {
       SettingsFeature()
     } withDependencies: {

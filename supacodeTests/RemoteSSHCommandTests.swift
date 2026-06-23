@@ -2,7 +2,7 @@ import Foundation
 import Testing
 
 @testable import SupacodeSettingsShared
-@testable import supacode
+@testable import vantage
 
 struct RemoteHostTests {
   @Test func bareAliasHasNoUserOrPortOptions() {
@@ -96,7 +96,7 @@ struct SSHCommandTests {
     #expect(
       result.arguments == [
         "-o", "ControlMaster=auto",
-        "-o", "ControlPath=~/.ssh/supacode-%C",
+        "-o", "ControlPath=~/.ssh/vantage-%C",
         "-o", "ControlPersist=10m",
         "devbox",
         SSHCommand.loginShellWrapped(expectedScript),
@@ -118,7 +118,7 @@ struct SSHCommandTests {
     #expect(
       result.arguments == [
         "-o", "ControlMaster=auto",
-        "-o", "ControlPath=~/.ssh/supacode-%C",
+        "-o", "ControlPath=~/.ssh/vantage-%C",
         "-o", "ControlPersist=10m",
         "-tt",
         "-p", "2222",
@@ -136,7 +136,7 @@ struct SSHCommandTests {
     let expectedTail = SSHCommand.shellQuote(SSHCommand.loginShellWrapped("zmx attach supa-x"))
     #expect(
       line
-        == "/usr/bin/ssh -o ControlMaster=auto -o ControlPath=~/.ssh/supacode-%C -o ControlPersist=10m -tt devbox "
+        == "/usr/bin/ssh -o ControlMaster=auto -o ControlPath=~/.ssh/vantage-%C -o ControlPersist=10m -tt devbox "
         + expectedTail
     )
   }
@@ -154,7 +154,7 @@ struct SSHCommandTests {
     )
     #expect(
       line
-        == "/usr/bin/ssh -o ControlMaster=auto -o ControlPath=~/.ssh/supacode-%C -o ControlPersist=10m -tt devbox "
+        == "/usr/bin/ssh -o ControlMaster=auto -o ControlPath=~/.ssh/vantage-%C -o ControlPersist=10m -tt devbox "
         + expectedTail
     )
   }
@@ -166,7 +166,7 @@ struct ZmxAttachRemoteTests {
   private var surfacePrelude: String {
     "export SUPACODE_SURFACE_ID='\(surfaceID.uuidString)'; " + ZmxAttach.betaBanner
   }
-  private let localZmx = "/Applications/Supacode.app/Contents/MacOS/zmx"
+  private let localZmx = "/Applications/Vantage.app/Contents/MacOS/zmx"
 
   @Test func remoteShellCommandWithoutUserCommandExportsSurfaceThenExecsLoginShell() {
     #expect(

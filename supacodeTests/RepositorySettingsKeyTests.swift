@@ -5,7 +5,7 @@ import Sharing
 import Testing
 
 @testable import SupacodeSettingsShared
-@testable import supacode
+@testable import vantage
 
 struct RepositorySettingsKeyTests {
   @Test func encodingOmitsNilWorktreeBaseRef() throws {
@@ -143,7 +143,7 @@ struct RepositorySettingsKeyTests {
     let globalStorage = SettingsTestStorage()
     let localStorage = RepositoryLocalSettingsTestStorage()
     let rootURL = URL(fileURLWithPath: "/tmp/repo")
-    let settingsFileURL = URL(fileURLWithPath: "/tmp/supacode-settings-\(UUID().uuidString).json")
+    let settingsFileURL = URL(fileURLWithPath: "/tmp/vantage-settings-\(UUID().uuidString).json")
     let repositoryID = rootURL.standardizedFileURL.path(percentEncoded: false)
     var globalSettings = RepositorySettings.default
     globalSettings.setupScript = "echo global"
@@ -182,7 +182,7 @@ struct RepositorySettingsKeyTests {
     let globalStorage = SettingsTestStorage()
     let localStorage = RepositoryLocalSettingsTestStorage()
     let rootURL = URL(fileURLWithPath: "/tmp/repo")
-    let settingsFileURL = URL(fileURLWithPath: "/tmp/supacode-settings-\(UUID().uuidString).json")
+    let settingsFileURL = URL(fileURLWithPath: "/tmp/vantage-settings-\(UUID().uuidString).json")
     let repositoryID = rootURL.standardizedFileURL.path(percentEncoded: false)
     var globalSettings = RepositorySettings.default
     globalSettings.setupScript = "echo global"
@@ -214,7 +214,7 @@ struct RepositorySettingsKeyTests {
     let globalStorage = SettingsTestStorage()
     let localStorage = RepositoryLocalSettingsTestStorage()
     let rootURL = URL(fileURLWithPath: "/tmp/repo")
-    let settingsFileURL = URL(fileURLWithPath: "/tmp/supacode-settings-\(UUID().uuidString).json")
+    let settingsFileURL = URL(fileURLWithPath: "/tmp/vantage-settings-\(UUID().uuidString).json")
     let repositoryID = rootURL.standardizedFileURL.path(percentEncoded: false)
     let localURL = SupacodePaths.repositorySettingsURL(for: rootURL)
     var globalSettings = RepositorySettings.default
@@ -249,7 +249,7 @@ struct RepositorySettingsKeyTests {
     let globalStorage = SettingsTestStorage()
     let localStorage = RepositoryLocalSettingsTestStorage()
     let rootURL = URL(fileURLWithPath: "/tmp/repo")
-    let settingsFileURL = URL(fileURLWithPath: "/tmp/supacode-settings-\(UUID().uuidString).json")
+    let settingsFileURL = URL(fileURLWithPath: "/tmp/vantage-settings-\(UUID().uuidString).json")
     let repositoryID = rootURL.standardizedFileURL.path(percentEncoded: false)
     let localURL = SupacodePaths.repositorySettingsURL(for: rootURL)
 
@@ -289,7 +289,7 @@ struct RepositorySettingsKeyTests {
     let globalStorage = SettingsTestStorage()
     let localStorage = RepositoryLocalSettingsTestStorage()
     let rootURL = URL(fileURLWithPath: "/tmp/repo")
-    let settingsFileURL = URL(fileURLWithPath: "/tmp/supacode-settings-\(UUID().uuidString).json")
+    let settingsFileURL = URL(fileURLWithPath: "/tmp/vantage-settings-\(UUID().uuidString).json")
     let repositoryID = rootURL.standardizedFileURL.path(percentEncoded: false)
     let localURL = SupacodePaths.repositorySettingsURL(for: rootURL)
 
@@ -363,7 +363,7 @@ struct RepositorySettingsKeyTests {
     let rootURL = URL(fileURLWithPath: path)
     let host = RemoteHost(alias: "box")
 
-    // A local supacode.json physically present at the same path must never be
+    // A local vantage.json physically present at the same path must never be
     // read for a remote repo (it would belong to a different local checkout).
     var localSettings = RepositorySettings.default
     localSettings.setupScript = "echo local-bleed"

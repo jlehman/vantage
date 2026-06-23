@@ -8,7 +8,7 @@ import Testing
 
 @testable import SupacodeSettingsFeature
 @testable import SupacodeSettingsShared
-@testable import supacode
+@testable import vantage
 
 @MainActor
 struct AppFeatureArchivedSelectionTests {

@@ -2,7 +2,7 @@ import Foundation
 import Testing
 
 @testable import SupacodeSettingsShared
-@testable import supacode
+@testable import vantage
 
 /// Asserts that a `GitClient` built on `ShellClient.ssh(host:)` rewrites a
 /// worktree-create shell-out into the expected `ssh <host> <remoteCommand>`
@@ -53,7 +53,7 @@ struct GitClientRemoteSSHTests {
     #expect(
       Array(snapshot.arguments.prefix(7)) == [
         "-o", "ControlMaster=auto",
-        "-o", "ControlPath=~/.ssh/supacode-%C",
+        "-o", "ControlPath=~/.ssh/vantage-%C",
         "-o", "ControlPersist=10m",
         "devbox",
       ]
@@ -206,7 +206,7 @@ struct GitClientRemoteSSHTests {
     let fileManager = FileManager.default
     let localDirectory =
       fileManager.temporaryDirectory
-      .appending(path: "supacode-remote-remove-\(UUID().uuidString)", directoryHint: .isDirectory)
+      .appending(path: "vantage-remote-remove-\(UUID().uuidString)", directoryHint: .isDirectory)
     try fileManager.createDirectory(at: localDirectory, withIntermediateDirectories: true)
     defer { try? fileManager.removeItem(at: localDirectory) }
 

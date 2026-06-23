@@ -54,7 +54,7 @@ struct WorktreeLoadingView: View {
   WorktreeLoadingView(
     info: WorktreeLoadingInfo(
       name: "sbertix/small-ui-improvements",
-      repositoryName: "supacode",
+      repositoryName: "vantage",
       kind: .creating(
         WorktreeLoadingInfo.Progress(
           statusTitle: "Creating worktree",

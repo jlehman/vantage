@@ -4,7 +4,7 @@ import GhosttyKit
 import Testing
 
 @testable import SupacodeSettingsShared
-@testable import supacode
+@testable import vantage
 
 // Serialized: the coalescing tests drive a TestClock with two concurrent
 // sleepers (flush + stale watch); parallel execution can race `advance` before
@@ -15,19 +15,19 @@ struct GhosttySurfaceBridgeTests {
   @Test
   func openUrlRequestPreservesHTTPSURL() {
     let request = ghosttyOpenURLRequest(
-      urlString: "https://supacode.dev/changelog",
+      urlString: "https://vantage.dev/changelog",
       kind: GHOSTTY_ACTION_OPEN_URL_KIND_UNKNOWN
     )
 
     #expect(request?.kind == .unknown)
-    #expect(request?.url.absoluteString == "https://supacode.dev/changelog")
+    #expect(request?.url.absoluteString == "https://vantage.dev/changelog")
     #expect(request?.url.isFileURL == false)
   }
 
   @Test
   func openUrlRequestTreatsTildePathAsFileURL() {
     let request = ghosttyOpenURLRequest(
-      urlString: "~/code/github.com/supabitapp/supacode",
+      urlString: "~/code/github.com/supabitapp/vantage",
       kind: GHOSTTY_ACTION_OPEN_URL_KIND_UNKNOWN
     )
 
@@ -35,14 +35,14 @@ struct GhosttySurfaceBridgeTests {
     #expect(
       request?.url.path
         == FileManager.default.homeDirectoryForCurrentUser
-        .appending(path: "code/github.com/supabitapp/supacode").path
+        .appending(path: "code/github.com/supabitapp/vantage").path
     )
   }
 
   @Test
   func openUrlRequestExpandsNamedTildePathAsFileURL() {
     let username = NSUserName()
-    let input = "~\(username)/code/github.com/supabitapp/supacode"
+    let input = "~\(username)/code/github.com/supabitapp/vantage"
     let request = ghosttyOpenURLRequest(
       urlString: input,
       kind: GHOSTTY_ACTION_OPEN_URL_KIND_UNKNOWN

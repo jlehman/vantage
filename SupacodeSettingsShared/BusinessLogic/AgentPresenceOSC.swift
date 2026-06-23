@@ -24,13 +24,13 @@ import Foundation
 /// Signals are unauthenticated: anything that can write to the terminal can emit
 /// one, and the worst case is a spurious badge or notification (text is
 /// control-char-sanitized and length-capped app-side). Emission is gated on
-/// `SUPACODE_SURFACE_ID` so it no-ops outside a Supacode surface.
+/// `SUPACODE_SURFACE_ID` so it no-ops outside a Vantage surface.
 ///
 /// Single source of truth for both the emit side (the agent hook) and the parse
 /// side (the app), so the field names can't drift.
 public nonisolated enum AgentPresenceOSC {
-  /// Env var present only on Supacode surfaces, so its presence is the
-  /// no-op-outside-Supacode emit gate.
+  /// Env var present only on Vantage surfaces, so its presence is the
+  /// no-op-outside-Vantage emit gate.
   public static let surfaceEnvVar = "SUPACODE_SURFACE_ID"
 
   static let eventField = "event"

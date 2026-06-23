@@ -6,7 +6,7 @@ import Sharing
 import SupacodeSettingsShared
 import Testing
 
-@testable import supacode
+@testable import vantage
 
 @MainActor
 struct AgentPresenceFeatureTests {

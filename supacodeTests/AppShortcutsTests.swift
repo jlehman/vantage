@@ -4,7 +4,7 @@ import SwiftUI
 import Testing
 
 @testable import SupacodeSettingsShared
-@testable import supacode
+@testable import vantage
 
 private struct PlainCodingKey: CodingKey {
   var stringValue: String

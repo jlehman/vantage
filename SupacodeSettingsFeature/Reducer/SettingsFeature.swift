@@ -5,7 +5,7 @@ import SupacodeSettingsShared
 
 @Reducer
 public struct SettingsFeature {
-  /// Lifecycle of the bundled `supacode` CLI install. Lives on the
+  /// Lifecycle of the bundled `vantage` CLI install. Lives on the
   /// SettingsFeature state because that's the only owner; nesting keeps
   /// it out of the shared models package.
   public enum CLIInstallState: Equatable, Sendable {
@@ -310,10 +310,10 @@ public struct SettingsFeature {
         let message: String
         if let errorMessage, !errorMessage.isEmpty {
           message =
-            "Supacode cannot send system notifications.\n\n"
+            "Vantage cannot send system notifications.\n\n"
             + "Error: \(errorMessage)"
         } else {
-          message = "Supacode cannot send system notifications while permission is denied."
+          message = "Vantage cannot send system notifications while permission is denied."
         }
         state.alert = AlertState {
           TextState("Enable Notifications in System Settings")

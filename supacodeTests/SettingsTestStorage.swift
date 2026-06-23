@@ -1,7 +1,7 @@
 import Foundation
 
 @testable import SupacodeSettingsShared
-@testable import supacode
+@testable import vantage
 
 nonisolated final class SettingsTestStorage: @unchecked Sendable {
   private let lock = NSLock()

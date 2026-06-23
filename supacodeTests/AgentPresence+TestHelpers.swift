@@ -1,7 +1,7 @@
 import ComposableArchitecture
 import Foundation
 
-@testable import supacode
+@testable import vantage
 
 /// Test-only harness around an `AgentPresenceFeature.State`. A background task
 /// drains the manager's event stream and routes `agentHookEventReceived` /

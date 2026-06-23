@@ -4,7 +4,7 @@ import IdentifiedCollections
 import SupacodeSettingsShared
 import Testing
 
-@testable import supacode
+@testable import vantage
 
 /// Pins the load-bearing #289 contract: storms on the focused row that
 /// only touch agent / surface / notification fields must NOT mutate the

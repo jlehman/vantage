@@ -1,5 +1,5 @@
 nonisolated enum AgentHookCommandOwnership {
-  /// True when the command was installed by Supacode. The trailing
+  /// True when the command was installed by Vantage. The trailing
   /// sentinel is the source of truth; legacy patterns cover hooks from
   /// versions before the sentinel existed.
   static func isSupacodeManagedCommand(_ command: String?) -> Bool {
@@ -8,7 +8,7 @@ nonisolated enum AgentHookCommandOwnership {
     return isLegacyCommand(command)
   }
 
-  /// True for pre-sentinel Supacode hooks. Current commands carry the
+  /// True for pre-sentinel Vantage hooks. Current commands carry the
   /// sentinel and are NOT legacy.
   static func isLegacyCommand(_ command: String) -> Bool {
     guard !command.contains(AgentHookSettingsCommand.ownershipMarker) else { return false }
@@ -18,15 +18,15 @@ nonisolated enum AgentHookCommandOwnership {
       return true
     }
     if command.contains(AgentHookSettingsCommand.socketPathEnvVar)
-      && command.contains(#"supacode integration event"#)
+      && command.contains(#"vantage integration event"#)
     {
       return true
     }
     // Pre-envelope hooks carry the verbatim 4-var presence-guard but
-    // neither the sentinel nor the CLI shim. The guard is a Supacode-
+    // neither the sentinel nor the CLI shim. The guard is a Vantage-
     // specific fingerprint: a user following the documented single-var
     // `SUPACODE_SOCKET_PATH` pattern won't match. See `envCheck` for the
-    // deliberate trade w.r.t. customized-body-with-Supacode-head hooks.
+    // deliberate trade w.r.t. customized-body-with-Vantage-head hooks.
     return command.contains(AgentHookSettingsCommand.envCheck)
   }
 }

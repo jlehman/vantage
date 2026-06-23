@@ -6,7 +6,7 @@ import OrderedCollections
 import Testing
 
 @testable import SupacodeSettingsShared
-@testable import supacode
+@testable import vantage
 
 /// Test-only convenience mirroring the dissolved `RemoteRepositoryConfig`: a
 /// remote host + path with the derived helpers the old type exposed. Production
@@ -576,7 +576,7 @@ struct SaveRemoteConnectionTests {
     _ body: (TestStoreOf<RepositoriesFeature>) async -> Void
   ) async {
     let storage = SettingsTestStorage()
-    let settingsFileURL = URL(fileURLWithPath: "/tmp/supacode-remote-save-\(UUID().uuidString).json")
+    let settingsFileURL = URL(fileURLWithPath: "/tmp/vantage-remote-save-\(UUID().uuidString).json")
     await withDependencies {
       $0.settingsFileStorage = storage.storage
       $0.settingsFileURL = settingsFileURL
@@ -838,7 +838,7 @@ struct RemotePathClassificationTests {
     // still resolves `.git`): we must not collapse to a single fake main.
     let shell = routingShell(
       worktreeList: .failure(ShellClientError(command: "git", stdout: "", stderr: "", exitCode: 1)),
-      classifyStdout: "supacode-git"
+      classifyStdout: "vantage-git"
     )
     let loaded = await RepositoriesFeature.loadRemoteRepository(config, repoID: repoID, shell: shell)
     #expect(loaded.repository.worktrees.isEmpty)
@@ -849,7 +849,7 @@ struct RemotePathClassificationTests {
     let config = resolveConfig()
     let repoID = RepositoriesFeature.remoteRepositoryID(for: config)
     // A clean but empty listing is genuine: a single synthetic main is correct.
-    let shell = routingShell(worktreeList: .success(""), classifyStdout: "supacode-git")
+    let shell = routingShell(worktreeList: .success(""), classifyStdout: "vantage-git")
     let loaded = await RepositoriesFeature.loadRemoteRepository(config, repoID: repoID, shell: shell)
     #expect(loaded.failure == nil)
     #expect(loaded.repository.worktrees.count == 1)
@@ -861,7 +861,7 @@ struct RemotePathClassificationTests {
     let repoID = RepositoriesFeature.remoteRepositoryID(for: config)
     let shell = routingShell(
       worktreeList: .failure(ShellClientError(command: "git", stdout: "", stderr: "", exitCode: 1)),
-      classifyStdout: "supacode-nodir"
+      classifyStdout: "vantage-nodir"
     )
     let loaded = await RepositoriesFeature.loadRemoteRepository(config, repoID: repoID, shell: shell)
     #expect(loaded.repository.worktrees.isEmpty)
@@ -870,19 +870,19 @@ struct RemotePathClassificationTests {
   }
 
   @Test func gitWorkTreeClassifiesAsGit() async {
-    let kind = await RepositoriesFeature.classifyRemotePath("/p", shell: stubShell(stdout: "supacode-git"))
+    let kind = await RepositoriesFeature.classifyRemotePath("/p", shell: stubShell(stdout: "vantage-git"))
     #expect(kind == .git)
   }
 
   @Test func plainDirectoryClassifiesAsFolder() async {
-    let kind = await RepositoriesFeature.classifyRemotePath("/p", shell: stubShell(stdout: "supacode-folder"))
+    let kind = await RepositoriesFeature.classifyRemotePath("/p", shell: stubShell(stdout: "vantage-folder"))
     #expect(kind == .folder)
   }
 
   @Test func missingDirClassifiesAsMissingAndShellErrorAsUnknown() async {
     // A reachable host with an absent path is `.missing`, not `.unknown`, so the
     // failure can name the path instead of blaming the connection.
-    #expect(await RepositoriesFeature.classifyRemotePath("/p", shell: stubShell(stdout: "supacode-nodir")) == .missing)
+    #expect(await RepositoriesFeature.classifyRemotePath("/p", shell: stubShell(stdout: "vantage-nodir")) == .missing)
     #expect(await RepositoriesFeature.classifyRemotePath("/p", shell: throwingShell()) == .unknown)
   }
 
@@ -939,7 +939,7 @@ struct RemotePathClassificationTests {
     let repoJSON = try #require(String(bytes: try JSONEncoder().encode(repoSettings), encoding: .utf8))
     let globalJSON = try #require(
       String(bytes: try JSONEncoder().encode(SettingsFile(global: global)), encoding: .utf8))
-    let output = "===SUPACODE-REPO===\n\(repoJSON)\n===SUPACODE-GLOBAL===\n\(globalJSON)"
+    let output = "===VANTAGE-REPO===\n\(repoJSON)\n===VANTAGE-GLOBAL===\n\(globalJSON)"
     let result = RepositoriesFeature.parseRemoteWorktreeBaseDirectories(output)
     #expect(result.perRepo == "/srv/wt")
     #expect(result.global == "/srv/global")
@@ -947,7 +947,7 @@ struct RemotePathClassificationTests {
 
   @Test func parseRemoteWorktreeBaseDirectoriesEmptyForMissingFiles() {
     let result = RepositoriesFeature.parseRemoteWorktreeBaseDirectories(
-      "===SUPACODE-REPO===\n===SUPACODE-GLOBAL===\n")
+      "===VANTAGE-REPO===\n===VANTAGE-GLOBAL===\n")
     #expect(result.perRepo == nil)
     #expect(result.global == nil)
   }
@@ -1000,7 +1000,7 @@ struct RemoteWorktreeParentDirectoryTests {
     let repoJSON = try #require(String(bytes: try JSONEncoder().encode(repoSettings), encoding: .utf8))
     let globalJSON = try #require(
       String(bytes: try JSONEncoder().encode(SettingsFile(global: globalSettings)), encoding: .utf8))
-    let output = "===SUPACODE-REPO===\n\(repoJSON)\n===SUPACODE-GLOBAL===\n\(globalJSON)"
+    let output = "===VANTAGE-REPO===\n\(repoJSON)\n===VANTAGE-GLOBAL===\n\(globalJSON)"
     return ShellClient(
       run: { _, _, _ in ShellOutput(stdout: output, stderr: "", exitCode: 0) },
       runLoginImpl: { _, _, _, _ in ShellOutput(stdout: "", stderr: "", exitCode: 0) }
@@ -1302,7 +1302,7 @@ struct RemoteRepositoryResolutionTests {
     let storage = SettingsTestStorage()
     await withDependencies {
       $0.settingsFileStorage = storage.storage
-      $0.settingsFileURL = URL(fileURLWithPath: "/tmp/supacode-remote-resolve-\(UUID().uuidString).json")
+      $0.settingsFileURL = URL(fileURLWithPath: "/tmp/vantage-remote-resolve-\(UUID().uuidString).json")
       $0.sidebarStructureAutoRecompute = false
     } operation: {
       let store = TestStore(initialState: state) { RepositoriesFeature() }
@@ -1318,7 +1318,7 @@ struct RemoteRepositoryResolutionTests {
     let storage = SettingsTestStorage()
     await withDependencies {
       $0.settingsFileStorage = storage.storage
-      $0.settingsFileURL = URL(fileURLWithPath: "/tmp/supacode-remote-resolve-\(UUID().uuidString).json")
+      $0.settingsFileURL = URL(fileURLWithPath: "/tmp/vantage-remote-resolve-\(UUID().uuidString).json")
       $0.sidebarStructureAutoRecompute = false
     } operation: {
       let store = TestStore(initialState: state) { RepositoriesFeature() }

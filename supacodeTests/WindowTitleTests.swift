@@ -5,7 +5,7 @@ import OrderedCollections
 import Testing
 
 @testable import SupacodeSettingsShared
-@testable import supacode
+@testable import vantage
 
 @MainActor
 struct WindowTitleTests {
@@ -48,7 +48,7 @@ struct WindowTitleTests {
   @Test func computeReturnsAppNameWhenNoSelection() {
     let state = RepositoriesFeature.State()
     let manager = WorktreeTerminalManager(runtime: GhosttyRuntime())
-    #expect(WindowTitle.compute(repositories: state, terminalManager: manager) == "Supacode")
+    #expect(WindowTitle.compute(repositories: state, terminalManager: manager) == "Vantage")
   }
 
   @Test func computeReturnsArchiveLabelForArchivedSelection() {
@@ -62,7 +62,7 @@ struct WindowTitleTests {
     var state = RepositoriesFeature.State()
     state.selection = .worktree("does-not-exist")
     let manager = WorktreeTerminalManager(runtime: GhosttyRuntime())
-    #expect(WindowTitle.compute(repositories: state, terminalManager: manager) == "Supacode")
+    #expect(WindowTitle.compute(repositories: state, terminalManager: manager) == "Vantage")
   }
 
   @Test func computeUsesRepositoryNameWhenNoCustomTitle() {

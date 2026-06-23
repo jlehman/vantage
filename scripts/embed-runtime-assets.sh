@@ -4,14 +4,14 @@ set -euo pipefail
 destination_root="${TARGET_BUILD_DIR}/${UNLOCALIZED_RESOURCES_FOLDER_PATH}"
 git_wt_source="${SRCROOT}/Resources/git-wt/wt"
 zmx_source="${SRCROOT}/.build/zmx/bin/zmx"
-light_theme_source="${SRCROOT}/supacode/Resources/Themes/Supacode Light"
-dark_theme_source="${SRCROOT}/supacode/Resources/Themes/Supacode Dark"
+light_theme_source="${SRCROOT}/supacode/Resources/Themes/Vantage Light"
+dark_theme_source="${SRCROOT}/supacode/Resources/Themes/Vantage Dark"
 git_wt_destination_dir="${destination_root}/git-wt"
 zmx_destination_dir="${destination_root}/zmx"
 bin_destination_dir="${destination_root}/bin"
 cli_candidates=(
-  "${BUILT_PRODUCTS_DIR}/supacode"
-  "${UNINSTALLED_PRODUCTS_DIR}/${PLATFORM_NAME}/supacode"
+  "${BUILT_PRODUCTS_DIR}/vantage"
+  "${UNINSTALLED_PRODUCTS_DIR}/${PLATFORM_NAME}/vantage"
 )
 
 cli_source=""
@@ -23,7 +23,7 @@ for candidate in "${cli_candidates[@]}"; do
 done
 
 if [ -z "${cli_source}" ]; then
-  echo "error: missing built supacode executable" >&2
+  echo "error: missing built vantage executable" >&2
   exit 1
 fi
 
@@ -38,6 +38,6 @@ mkdir -p "${git_wt_destination_dir}" "${zmx_destination_dir}" "${bin_destination
 chmod +x "${git_wt_destination_dir}/wt"
 /bin/cp -f "${zmx_source}" "${zmx_destination_dir}/zmx"
 chmod +x "${zmx_destination_dir}/zmx"
-/bin/cp -f "${light_theme_source}" "${destination_root}/Supacode Light"
-/bin/cp -f "${dark_theme_source}" "${destination_root}/Supacode Dark"
-/bin/cp -f "${cli_source}" "${bin_destination_dir}/supacode"
+/bin/cp -f "${light_theme_source}" "${destination_root}/Vantage Light"
+/bin/cp -f "${dark_theme_source}" "${destination_root}/Vantage Dark"
+/bin/cp -f "${cli_source}" "${bin_destination_dir}/vantage"

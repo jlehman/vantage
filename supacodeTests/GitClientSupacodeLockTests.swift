@@ -1,7 +1,7 @@
 import Foundation
 import Testing
 
-@testable import supacode
+@testable import vantage
 
 struct GitClientSupacodeLockTests {
   @Test func reconcileBackfillsLockOnUnmanagedWorktree() async throws {
@@ -179,14 +179,14 @@ struct GitClientSupacodeLockTests {
   }
 
   @Test func parserRejectsNonJSONReason() {
-    #expect(GitClient.parseSupacodeLockMetadata(from: "Managed by Supacode") == nil)
+    #expect(GitClient.parseSupacodeLockMetadata(from: "Managed by Vantage") == nil)
     #expect(GitClient.parseSupacodeLockMetadata(from: "") == nil)
   }
 
   @Test func reconcileBackfillsLockOnBareRepository() async throws {
     let tempRoot = URL(filePath: "/tmp", directoryHint: .isDirectory)
     let id = UUID().uuidString
-    let containerURL = tempRoot.appending(path: "supacode-bare-\(id)", directoryHint: .isDirectory)
+    let containerURL = tempRoot.appending(path: "vantage-bare-\(id)", directoryHint: .isDirectory)
     let bareURL = containerURL.appending(path: "origin.git", directoryHint: .isDirectory)
     let seedURL = containerURL.appending(path: "seed", directoryHint: .isDirectory)
     let worktreeURL = containerURL.appending(path: "feature", directoryHint: .isDirectory)
@@ -247,7 +247,7 @@ private struct GitWorktreeFixture {
     let tempRoot = URL(filePath: "/tmp", directoryHint: .isDirectory)
     let id = UUID().uuidString
     containerURL = tempRoot.appending(
-      path: "supacode-lock-\(id)",
+      path: "vantage-lock-\(id)",
       directoryHint: URL.DirectoryHint.isDirectory
     )
     try FileManager.default.createDirectory(at: containerURL, withIntermediateDirectories: true)

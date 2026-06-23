@@ -4,7 +4,7 @@ import SwiftUI
 import Testing
 
 @testable import SupacodeSettingsShared
-@testable import supacode
+@testable import vantage
 
 @MainActor
 struct AppShortcutOverrideTests {

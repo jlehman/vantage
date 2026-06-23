@@ -3,7 +3,7 @@ import Foundation
 import Sharing
 import Testing
 
-@testable import supacode
+@testable import vantage
 
 /// Locks the state-driven auto-dismiss for the highlight onboarding card.
 /// The dismiss lives in the reducer's `.sidebarGroupingTogglesChanged`

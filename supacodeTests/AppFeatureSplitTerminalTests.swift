@@ -4,7 +4,7 @@ import Foundation
 import Testing
 
 @testable import SupacodeSettingsFeature
-@testable import supacode
+@testable import vantage
 
 @MainActor
 struct AppFeatureSplitTerminalTests {

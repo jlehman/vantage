@@ -1,6 +1,6 @@
 //
 //  ContentView.swift
-//  supacode
+//  vantage
 //
 //  Created by khoi on 20/1/26.
 //
@@ -59,7 +59,7 @@ struct ContentView: View {
           .repositories(
             .presentAlert(
               title: "Unable to open folders",
-              message: "Supacode could not read the selected folders."
+              message: "Vantage could not read the selected folders."
             )
           )
         )

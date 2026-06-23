@@ -5,7 +5,7 @@ import OrderedCollections
 import SupacodeSettingsShared
 import Testing
 
-@testable import supacode
+@testable import vantage
 
 @MainActor
 @Suite(.serialized)

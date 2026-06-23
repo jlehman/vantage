@@ -1,6 +1,6 @@
 import Foundation
 
-@testable import supacode
+@testable import vantage
 
 extension RepositoriesFeature.State {
   /// Seed an active removal batch for tests that drop straight

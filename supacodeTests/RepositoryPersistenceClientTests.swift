@@ -5,7 +5,7 @@ import Sharing
 import Testing
 
 @testable import SupacodeSettingsShared
-@testable import supacode
+@testable import vantage
 
 struct RepositoryPersistenceClientTests {
   // MARK: - normalize (shape-aware)

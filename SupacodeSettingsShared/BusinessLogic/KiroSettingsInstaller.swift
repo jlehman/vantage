@@ -64,7 +64,7 @@ nonisolated struct KiroSettingsInstaller {
     // Version check happens inside `ensureDefaultAgentConfig`, which
     // short-circuits when `kiro_default.json` already exists — avoids
     // re-running `kiro --version` on every install when the user has
-    // already accepted a config from this Supacode build.
+    // already accepted a config from this Vantage build.
     try await ensureDefaultAgentConfig()
     try fileInstaller.install(
       settingsURL: settingsURL,
@@ -278,15 +278,15 @@ nonisolated enum KiroSettingsInstallerError: Error, Equatable, LocalizedError {
     case .invalidHooksObject:
       "Kiro agent config uses an unsupported hooks shape."
     case .invalidJSON(let detail):
-      "Kiro agent config must be valid JSON before Supacode can install hooks (\(detail))."
+      "Kiro agent config must be valid JSON before Vantage can install hooks (\(detail))."
     case .invalidRootObject:
-      "Kiro agent config must be a JSON object before Supacode can install hooks."
+      "Kiro agent config must be a JSON object before Vantage can install hooks."
     case .kiroUnavailable:
-      "Kiro must be installed and available in your login shell before Supacode can install hooks."
+      "Kiro must be installed and available in your login shell before Vantage can install hooks."
     case .unsupportedKiroVersion(let detected):
       """
-      Supacode only knows Kiro \(KiroSettingsInstaller.supportedVersionPrefix)x defaults \
-      (detected \(detected.isEmpty ? "unknown" : detected)). Update Supacode before installing hooks.
+      Vantage only knows Kiro \(KiroSettingsInstaller.supportedVersionPrefix)x defaults \
+      (detected \(detected.isEmpty ? "unknown" : detected)). Update Vantage before installing hooks.
       """
     }
   }

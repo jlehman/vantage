@@ -3,7 +3,7 @@ import Foundation
 import Testing
 
 @testable import SupacodeSettingsShared
-@testable import supacode
+@testable import vantage
 
 struct AgentHookSettingsFileInstallerTests {
   private let fileManager = FileManager.default
@@ -23,7 +23,7 @@ struct AgentHookSettingsFileInstallerTests {
 
   private func makeTempURL() -> URL {
     URL(fileURLWithPath: NSTemporaryDirectory())
-      .appendingPathComponent("supacode-test-\(UUID().uuidString)")
+      .appendingPathComponent("vantage-test-\(UUID().uuidString)")
       .appendingPathComponent("settings.json")
   }
 
@@ -245,16 +245,16 @@ struct AgentHookSettingsFileInstallerTests {
     let preCollapse: JSONValue = .object([
       "hooks": .object([
         "Notification": .array([
-          .object(["hooks": .array([sentinelCommand("supacode awaiting_input")]), "matcher": ""]),
-          .object(["hooks": .array([sentinelCommand("supacode notify")]), "matcher": ""]),
+          .object(["hooks": .array([sentinelCommand("vantage awaiting_input")]), "matcher": ""]),
+          .object(["hooks": .array([sentinelCommand("vantage notify")]), "matcher": ""]),
         ]),
         "Stop": .array([
-          .object(["hooks": .array([sentinelCommand("supacode idle")])]),
-          .object(["hooks": .array([sentinelCommand("supacode notify")])]),
+          .object(["hooks": .array([sentinelCommand("vantage idle")])]),
+          .object(["hooks": .array([sentinelCommand("vantage notify")])]),
         ]),
         "PreToolUse": .array([
           .object(["hooks": .array([userBashHook]), "matcher": "Bash"]),
-          .object(["hooks": .array([sentinelCommand("supacode busy")]), "matcher": ""]),
+          .object(["hooks": .array([sentinelCommand("vantage busy")]), "matcher": ""]),
         ]),
       ])
     ])
@@ -267,7 +267,7 @@ struct AgentHookSettingsFileInstallerTests {
     let hooks = root.objectValue?["hooks"]?.objectValue ?? [:]
     #expect(hooks["Notification"] == nil)
     #expect(hooks["Stop"] == nil)
-    // PreToolUse keeps the user-authored Bash hook, drops the Supacode one.
+    // PreToolUse keeps the user-authored Bash hook, drops the Vantage one.
     let preToolUseGroups = hooks["PreToolUse"]?.arrayValue ?? []
     #expect(preToolUseGroups.count == 1)
     let surviving = preToolUseGroups.first?.objectValue?["hooks"]?.arrayValue?.first?.objectValue
@@ -294,7 +294,7 @@ struct AgentHookSettingsFileInstallerTests {
             "hooks": .array([
               .object([
                 "type": "command",
-                "command": .string("supacode old-idle \(sentinel)"),
+                "command": .string("vantage old-idle \(sentinel)"),
                 "timeout": 5,
               ])
             ])
@@ -303,7 +303,7 @@ struct AgentHookSettingsFileInstallerTests {
             "hooks": .array([
               .object([
                 "type": "command",
-                "command": .string("supacode old-notify \(sentinel)"),
+                "command": .string("vantage old-notify \(sentinel)"),
                 "timeout": 10,
               ])
             ])

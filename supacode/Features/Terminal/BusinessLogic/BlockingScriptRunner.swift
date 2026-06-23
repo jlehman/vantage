@@ -28,7 +28,7 @@ enum BlockingScriptRunner {
 
     let fileManager = FileManager.default
     let directoryURL = baseDirectoryURL.appending(
-      path: "supacode-blocking-script-\(UUID().uuidString.lowercased())",
+      path: "vantage-blocking-script-\(UUID().uuidString.lowercased())",
       directoryHint: .isDirectory
     )
     let runnerURL = directoryURL.appending(path: "run", directoryHint: .notDirectory)
@@ -130,7 +130,7 @@ enum BlockingScriptRunner {
     return SSHCommand.commandLine(
       host: host,
       remoteScript: remoteRunnerScript(remoteWorktreePath: remoteWorktreePath),
-      positionalArguments: ["supacode-blocking", trimmed],
+      positionalArguments: ["vantage-blocking", trimmed],
       environment: environment
     )
   }

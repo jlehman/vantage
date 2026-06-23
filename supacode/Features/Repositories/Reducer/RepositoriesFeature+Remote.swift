@@ -187,7 +187,7 @@ extension RepositoriesFeature {
         rootID: repoID,
         message:
           "Connected to \(host.sshDestination) but couldn't list worktrees for "
-          + "\(remotePath). Supacode will retry."
+          + "\(remotePath). Vantage will retry."
       )
       return (remotePlaceholderRepository(host: host, remotePath: remotePath, repoID: repoID), failure)
     case .git:
@@ -327,17 +327,17 @@ extension RepositoriesFeature {
   ) async -> RemotePathKind {
     let quoted = "'" + remotePath.replacing("'", with: "'\\''") + "'"
     let script =
-      "if [ ! -d \(quoted) ]; then echo supacode-nodir; "
-      + "elif git -C \(quoted) rev-parse --is-inside-work-tree >/dev/null 2>&1; then echo supacode-git; "
-      + "else echo supacode-folder; fi"
+      "if [ ! -d \(quoted) ]; then echo vantage-nodir; "
+      + "elif git -C \(quoted) rev-parse --is-inside-work-tree >/dev/null 2>&1; then echo vantage-git; "
+      + "else echo vantage-folder; fi"
     guard let output = try? await shell.run(URL(fileURLWithPath: "/bin/sh"), ["-c", script], nil) else {
       return .unknown
     }
     let trimmedStdout = lastNonEmptyLine(of: output.stdout)
     switch trimmedStdout {
-    case "supacode-git": return .git
-    case "supacode-folder": return .folder
-    case "supacode-nodir": return .missing
+    case "vantage-git": return .git
+    case "vantage-folder": return .folder
+    case "vantage-nodir": return .missing
     default:
       repositoriesLogger.warning("classifyRemotePath: unexpected probe stdout: " + trimmedStdout)
       return .unknown
@@ -455,7 +455,7 @@ extension RepositoriesFeature {
         name = trimmed
       }
       // Parent directory precedence: the prompt's explicit override, then the
-      // remote host's Supacode settings (per-repo, then global), then the
+      // remote host's Vantage settings (per-repo, then global), then the
       // local-style default (alongside the repo root on the host). The leaf is
       // the prompt's worktree-name override, falling back to the branch name.
       let parentDirectory = await Self.remoteWorktreeParentDirectory(
@@ -486,7 +486,7 @@ extension RepositoriesFeature {
   }
 
   /// Parent directory for a new remote worktree. Precedence: the prompt's
-  /// explicit parent override, then the remote host's Supacode per-repo
+  /// explicit parent override, then the remote host's Vantage per-repo
   /// `worktreeBaseDirectoryPath`, then the remote global default (joined with the
   /// repo's directory name), then the local-style default of placing the
   /// worktree alongside the repo root on the host.
@@ -514,8 +514,8 @@ extension RepositoriesFeature {
   }
 
   /// Read the remote host's worktree base directories over ssh: the per-repo
-  /// value from `<repoRoot>/supacode.json` and the global default from
-  /// `~/.supacode/settings.json`. Returns `(nil, nil)` when the host is
+  /// value from `<repoRoot>/vantage.json` and the global default from
+  /// `~/.vantage/settings.json`. Returns `(nil, nil)` when the host is
   /// unreachable or neither file is present.
   static func readRemoteWorktreeBaseDirectories(
     host: RemoteHost,
@@ -523,12 +523,12 @@ extension RepositoriesFeature {
     shell: ShellClient? = nil
   ) async -> (perRepo: String?, global: String?) {
     let shell = shell ?? .ssh(host: host)
-    let repoSettingsPath = repoRoot.appending(path: "supacode.json").path(percentEncoded: false)
+    let repoSettingsPath = repoRoot.appending(path: "vantage.json").path(percentEncoded: false)
     let quotedRepoSettings = "'" + repoSettingsPath.replacing("'", with: "'\\''") + "'"
     // `|| true` keeps a missing file a clean empty section rather than a non-zero exit.
     let script =
-      "echo '===SUPACODE-REPO==='; cat \(quotedRepoSettings) 2>/dev/null || true; "
-      + #"echo '===SUPACODE-GLOBAL==='; cat "$HOME/.supacode/settings.json" 2>/dev/null || true"#
+      "echo '===VANTAGE-REPO==='; cat \(quotedRepoSettings) 2>/dev/null || true; "
+      + #"echo '===VANTAGE-GLOBAL==='; cat "$HOME/.vantage/settings.json" 2>/dev/null || true"#
     guard
       let output = try? await shell.run(URL(fileURLWithPath: "/bin/sh"), ["-c", script], nil)
     else {
@@ -544,8 +544,8 @@ extension RepositoriesFeature {
     _ output: String
   ) -> (perRepo: String?, global: String?) {
     guard
-      let repoMarker = output.range(of: "===SUPACODE-REPO==="),
-      let globalMarker = output.range(of: "===SUPACODE-GLOBAL===")
+      let repoMarker = output.range(of: "===VANTAGE-REPO==="),
+      let globalMarker = output.range(of: "===VANTAGE-GLOBAL===")
     else {
       return (nil, nil)
     }

@@ -1,7 +1,7 @@
 import AppKit
 import Testing
 
-@testable import supacode
+@testable import vantage
 
 struct CommandKeyObserverTests {
   @Test func shouldShowShortcutsForCommandOrControl() {

@@ -57,7 +57,7 @@ private nonisolated func normalizeRepoID(_ value: String) -> String {
 nonisolated func validatedScriptID(_ raw: String) throws -> String {
   guard let uuid = UUID(uuidString: raw) else {
     throw ValidationError(
-      "Invalid --script value: expected a UUID. Run `supacode worktree script list` to list script IDs."
+      "Invalid --script value: expected a UUID. Run `vantage worktree script list` to list script IDs."
     )
   }
   return uuid.uuidString

@@ -1,6 +1,6 @@
 import Testing
 
-@testable import supacode
+@testable import vantage
 
 struct WorktreeProgressThrottleTests {
   @Test func recordLineEmitsFirstThenEveryStride() {

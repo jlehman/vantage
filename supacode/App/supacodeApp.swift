@@ -1,6 +1,6 @@
 //
 //  supacodeApp.swift
-//  supacode
+//  vantage
 //
 //  Created by khoi on 20/1/26.
 //
@@ -19,7 +19,7 @@ private enum GhosttyCLI {
     @Shared(.settingsFile) var settingsFile
     let overrides = settingsFile.global.shortcutOverrides
     var args: [UnsafeMutablePointer<CChar>?] = []
-    let executable = CommandLine.arguments.first ?? "supacode"
+    let executable = CommandLine.arguments.first ?? "vantage"
     args.append(strdup(executable))
     for keybindArgument in AppShortcuts.ghosttyCLIKeybindArguments(from: overrides) {
       args.append(strdup(keybindArgument))
@@ -424,7 +424,7 @@ struct SupacodeApp: App {
   }
 
   var body: some Scene {
-    Window("Supacode", id: WindowID.main) {
+    Window("Vantage", id: WindowID.main) {
       GhosttyColorSchemeSyncView(ghostty: ghostty) {
         ContentView(store: store, terminalManager: terminalManager)
           .environment(ghosttyShortcuts)
@@ -450,7 +450,7 @@ struct SupacodeApp: App {
       }
       UpdateCommands(store: store.scope(state: \.updates, action: \.updates))
       CommandGroup(replacing: .singleWindowList) {
-        Button("Supacode") {
+        Button("Vantage") {
           NSApplication.shared.surfaceMainWindow()
         }
         .appKeyboardShortcut(AppShortcuts.showMainWindow.effective(from: store.settings.shortcutOverrides))
@@ -463,17 +463,17 @@ struct SupacodeApp: App {
       }
       CommandGroup(replacing: .help) {
         Button("Submit GitHub Issue") {
-          guard let url = URL(string: "https://github.com/supabitapp/supacode/issues/new") else { return }
+          guard let url = URL(string: "https://github.com/jlehman/vantage/issues/new") else { return }
           NSWorkspace.shared.open(url)
         }
         .help("Submit GitHub Issue")
       }
       CommandGroup(replacing: .appTermination) {
-        Button("Quit Supacode") {
+        Button("Quit Vantage") {
           store.send(.requestQuit)
         }
         .keyboardShortcut("q")
-        .help("Quit Supacode (⌘Q)")
+        .help("Quit Vantage (⌘Q)")
       }
     }
     Window("Settings", id: WindowID.settings) {

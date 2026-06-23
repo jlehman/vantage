@@ -794,7 +794,7 @@ struct AppFeature {
             return sendSocketResponse(
               clientFD: responseFD, ok: false, error: "Invalid deeplink: \(url.absoluteString)")
           }
-          if url.scheme == "supacode" {
+          if url.scheme == "vantage" {
             state.alert = AlertState {
               TextState("Invalid deeplink")
             } actions: {
@@ -813,7 +813,7 @@ struct AppFeature {
           // FD, and replaying them later would leave the CLI client hanging.
           if let responseFD {
             return sendSocketResponse(
-              clientFD: responseFD, ok: false, error: "Supacode is still loading. Try again.")
+              clientFD: responseFD, ok: false, error: "Vantage is still loading. Try again.")
           }
           state.pendingDeeplinks.append(parsed)
           return .none
@@ -1951,7 +1951,7 @@ struct AppFeature {
       hasBlockingScripts: hasBlockingScripts
     )
     return AlertState {
-      TextState("Quit Supacode?")
+      TextState("Quit Vantage?")
     } actions: {
       ButtonState(role: .cancel, action: .dismiss) { TextState("Cancel") }
       ButtonState(action: .confirmQuit) { TextState(context.primaryLabel) }
@@ -1968,7 +1968,7 @@ struct AppFeature {
   /// so the zmx daemon teardown completes inside the process lifetime.
   private func quitEffect(state: inout State, terminateSessions: Bool) -> Effect<Action> {
     analyticsClient.capture("app_quit", ["terminate_sessions": terminateSessions])
-    let pendingFDEffect = drainPendingResponseFD(state: &state, error: "Supacode is quitting.")
+    let pendingFDEffect = drainPendingResponseFD(state: &state, error: "Vantage is quitting.")
     let terminateEffect: Effect<Action> = .run { @MainActor [terminalClient, appLifecycleClient] _ in
       if terminateSessions {
         await terminalClient.terminateAllSessions()
@@ -2115,7 +2115,7 @@ struct AppFeature {
     return .send(.settings(.setSelection(settingsSection)))
   }
 
-  /// Builds a `supacode://worktree/<id>/surface/<tabID>/<surfaceID>` URL for a
+  /// Builds a `vantage://worktree/<id>/surface/<tabID>/<surfaceID>` URL for a
   /// notification whose surface is known; falls back to the worktree-level
   /// URL when the tab containing the surface can no longer be resolved.
   private func surfaceDeeplinkURL(worktreeID: Worktree.ID, surfaceID: UUID) -> URL? {
@@ -2128,7 +2128,7 @@ struct AppFeature {
           + "degrading tap deeplink to the worktree root."
       )
       return urlOrWarn(
-        "supacode://worktree/\(encodedWorktreeID)",
+        "vantage://worktree/\(encodedWorktreeID)",
         worktreeID: worktreeID,
         surfaceID: surfaceID
       )
@@ -2136,7 +2136,7 @@ struct AppFeature {
     let tabRaw = tabID.rawValue.uuidString
     let surfaceRaw = surfaceID.uuidString
     return urlOrWarn(
-      "supacode://worktree/\(encodedWorktreeID)/tab/\(tabRaw)/surface/\(surfaceRaw)",
+      "vantage://worktree/\(encodedWorktreeID)/tab/\(tabRaw)/surface/\(surfaceRaw)",
       worktreeID: worktreeID,
       surfaceID: surfaceID
     )

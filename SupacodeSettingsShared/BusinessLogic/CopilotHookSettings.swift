@@ -1,12 +1,12 @@
 import Foundation
 
-/// Builds `~/.copilot/hooks/supacode.json`. Copilot auto-loads every JSON file
-/// there, so Supacode owns its own file (like Pi/OpenCode) and emits the shared
+/// Builds `~/.copilot/hooks/vantage.json`. Copilot auto-loads every JSON file
+/// there, so Vantage owns its own file (like Pi/OpenCode) and emits the shared
 /// OSC 3008 presence signals from per-event `bash` hooks.
 nonisolated enum CopilotHookSettings {
-  static let fileName = "supacode.json"
+  static let fileName = "vantage.json"
 
-  /// Sentinel marking the file as Supacode-managed; install/uninstall key off it.
+  /// Sentinel marking the file as Vantage-managed; install/uninstall key off it.
   static let ownershipMarker = AgentHookSettingsCommand.ownershipMarker
 
   /// Deterministic, so `installState` can detect drift by a byte-for-byte compare.

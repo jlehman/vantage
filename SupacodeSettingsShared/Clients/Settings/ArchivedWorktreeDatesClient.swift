@@ -6,7 +6,7 @@ public nonisolated let secondsPerDay: TimeInterval = 86400
 /// Read-only view over archived-worktree timestamps used by the
 /// settings auto-delete affected-count preflight. The canonical
 /// source of truth is `@Shared(.sidebar)`, which is declared in the
-/// `supacode` app module and therefore out of reach of this shared
+/// `vantage` app module and therefore out of reach of this shared
 /// package. The app overrides `liveValue` at startup to bridge the
 /// sidebar bucket into this package; tests inject timestamps
 /// directly.

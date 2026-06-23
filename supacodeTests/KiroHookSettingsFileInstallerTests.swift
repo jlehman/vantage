@@ -2,7 +2,7 @@ import Foundation
 import Testing
 
 @testable import SupacodeSettingsShared
-@testable import supacode
+@testable import vantage
 
 struct KiroHookSettingsFileInstallerTests {
   private let fileManager = FileManager.default
@@ -22,7 +22,7 @@ struct KiroHookSettingsFileInstallerTests {
 
   private func makeTempURL() -> URL {
     URL(fileURLWithPath: NSTemporaryDirectory())
-      .appendingPathComponent("supacode-kiro-test-\(UUID().uuidString)")
+      .appendingPathComponent("vantage-kiro-test-\(UUID().uuidString)")
       .appendingPathComponent("kiro_default.json")
   }
 
@@ -259,7 +259,7 @@ struct KiroHookSettingsFileInstallerTests {
       at: url.deletingLastPathComponent(),
       withIntermediateDirectories: true,
     )
-    let legacyCommand = "SUPACODE_CLI_PATH=/usr/bin/supacode agent-hook --stop"
+    let legacyCommand = "SUPACODE_CLI_PATH=/usr/bin/vantage agent-hook --stop"
     #expect(AgentHookCommandOwnership.isLegacyCommand(legacyCommand))
     let seeded: JSONValue = .object([
       "hooks": .object([

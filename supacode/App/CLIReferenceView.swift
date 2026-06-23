@@ -6,11 +6,11 @@ struct CLIReferenceView: View {
       // swiftlint:disable line_length
       Section {
         Text(
-          "The \(code("supacode")) command is available in all Supacode terminal sessions. Run \(code("supacode --help")) for built-in usage information."
+          "The \(code("vantage")) command is available in all Vantage terminal sessions. Run \(code("vantage --help")) for built-in usage information."
         )
         .foregroundStyle(.secondary)
         Text(
-          "Inside a Supacode terminal, flags default to the current session's IDs. Outside, pass explicit IDs from \(code("supacode worktree list")) or \(code("supacode repo list"))."
+          "Inside a Vantage terminal, flags default to the current session's IDs. Outside, pass explicit IDs from \(code("vantage worktree list")) or \(code("vantage repo list"))."
         )
         .foregroundStyle(.secondary)
         Text(
@@ -20,7 +20,7 @@ struct CLIReferenceView: View {
         // swiftlint:enable line_length
       } header: {
         Text("CLI Reference").font(.title.bold())
-        Text("Control Supacode from the terminal.")
+        Text("Control Vantage from the terminal.")
       }
 
       CLISection(title: "App", rows: Self.appRows)
@@ -55,80 +55,80 @@ struct CLIReferenceView: View {
   // MARK: - Row data.
 
   private static let appRows: [CLIEntry] = [
-    .init(command: "supacode", description: "Bring Supacode to front."),
-    .init(command: "supacode open", description: "Same as above."),
+    .init(command: "vantage", description: "Bring Vantage to front."),
+    .init(command: "vantage open", description: "Same as above."),
   ]
 
   private static let worktreeRows: [CLIEntry] = [
-    .init(command: "supacode worktree list [-f]", description: "List worktree IDs. -f for focused only."),
-    .init(command: "supacode worktree focus [-w <id>]", description: "Focus a worktree."),
+    .init(command: "vantage worktree list [-f]", description: "List worktree IDs. -f for focused only."),
+    .init(command: "vantage worktree focus [-w <id>]", description: "Focus a worktree."),
     .init(
-      command: "supacode worktree run [-w <id>] [-c <uuid>]",
+      command: "vantage worktree run [-w <id>] [-c <uuid>]",
       description: "Run a script. Defaults to the primary run-kind script; -c targets a specific one."
     ),
     .init(
-      command: "supacode worktree stop [-w <id>] [-c <uuid>]",
+      command: "vantage worktree stop [-w <id>] [-c <uuid>]",
       description: "Stop a script. Defaults to all run-kind scripts; -c targets a specific one."
     ),
     .init(
-      command: "supacode worktree script list [-w <id>]",
+      command: "vantage worktree script list [-w <id>]",
       description: "List configured scripts. Underlined rows are currently running."
     ),
-    .init(command: "supacode worktree archive [-w <id>]", description: "Archive the worktree."),
-    .init(command: "supacode worktree unarchive [-w <id>]", description: "Unarchive the worktree."),
-    .init(command: "supacode worktree delete [-w <id>]", description: "Delete the worktree."),
-    .init(command: "supacode worktree pin [-w <id>]", description: "Pin the worktree."),
-    .init(command: "supacode worktree unpin [-w <id>]", description: "Unpin the worktree."),
+    .init(command: "vantage worktree archive [-w <id>]", description: "Archive the worktree."),
+    .init(command: "vantage worktree unarchive [-w <id>]", description: "Unarchive the worktree."),
+    .init(command: "vantage worktree delete [-w <id>]", description: "Delete the worktree."),
+    .init(command: "vantage worktree pin [-w <id>]", description: "Pin the worktree."),
+    .init(command: "vantage worktree unpin [-w <id>]", description: "Unpin the worktree."),
   ]
 
   private static let tabRows: [CLIEntry] = [
-    .init(command: "supacode tab list [-w <id>] [-f]", description: "List tab UUIDs. -f for focused only."),
-    .init(command: "supacode tab focus [-w <id>] [-t <id>]", description: "Focus a tab."),
+    .init(command: "vantage tab list [-w <id>] [-f]", description: "List tab UUIDs. -f for focused only."),
+    .init(command: "vantage tab focus [-w <id>] [-t <id>]", description: "Focus a tab."),
     .init(
-      command: "supacode tab new [-w <id>] [-i <cmd>] [-n <uuid>]",
+      command: "vantage tab new [-w <id>] [-i <cmd>] [-n <uuid>]",
       description: "Create a new tab. Prints UUID to stdout."
     ),
-    .init(command: "supacode tab close [-w <id>] [-t <id>]", description: "Close a tab."),
+    .init(command: "vantage tab close [-w <id>] [-t <id>]", description: "Close a tab."),
   ]
 
   private static let surfaceRows: [CLIEntry] = [
     .init(
-      command: "supacode surface list [-w <id>] [-t <id>] [-f]",
+      command: "vantage surface list [-w <id>] [-t <id>] [-f]",
       description: "List surface UUIDs. -f for focused only."
     ),
     .init(
-      command: "supacode surface focus [-w <id>] [-t <id>] [-s <id>] [-i <cmd>]",
+      command: "vantage surface focus [-w <id>] [-t <id>] [-s <id>] [-i <cmd>]",
       description: "Focus a surface."
     ),
     .init(
-      command: "supacode surface split [-w <id>] [-t <id>] [-s <id>] [-d h|v] [-i <cmd>] [-n <uuid>]",
+      command: "vantage surface split [-w <id>] [-t <id>] [-s <id>] [-d h|v] [-i <cmd>] [-n <uuid>]",
       description: "Split a surface. Prints UUID to stdout."
     ),
     .init(
-      command: "supacode surface close [-w <id>] [-t <id>] [-s <id>]",
+      command: "vantage surface close [-w <id>] [-t <id>] [-s <id>]",
       description: "Close a surface."
     ),
   ]
 
   private static let repoRows: [CLIEntry] = [
-    .init(command: "supacode repo list", description: "List repository IDs."),
-    .init(command: "supacode repo open <path>", description: "Open a repository."),
+    .init(command: "vantage repo list", description: "List repository IDs."),
+    .init(command: "vantage repo open <path>", description: "Open a repository."),
     .init(
       command:
-        "supacode repo worktree-new [-r <id>] [--branch <name>] [--base <ref>] [--fetch] "
+        "vantage repo worktree-new [-r <id>] [--branch <name>] [--base <ref>] [--fetch] "
         + "[--name <folder>] [--location <dir>]",
       description: "Create a worktree in a repository."
     ),
   ]
 
   private static let settingsRows: [CLIEntry] = [
-    .init(command: "supacode settings", description: "Open settings."),
-    .init(command: "supacode settings <section>", description: "Open a specific section."),
-    .init(command: "supacode settings repo [-r <id>]", description: "Open repository settings."),
+    .init(command: "vantage settings", description: "Open settings."),
+    .init(command: "vantage settings <section>", description: "Open a specific section."),
+    .init(command: "vantage settings repo [-r <id>]", description: "Open repository settings."),
   ]
 
   private static let socketRows: [CLIEntry] = [
-    .init(command: "supacode socket", description: "List active socket paths.")
+    .init(command: "vantage socket", description: "List active socket paths.")
   ]
 
   private static let flagRows: [CLIEntry] = [

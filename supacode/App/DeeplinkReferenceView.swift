@@ -22,7 +22,7 @@ struct DeeplinkReferenceView: View {
         .foregroundStyle(.secondary)
       } header: {
         Text("Deeplink Reference").font(.title.bold())
-        Text("Use the \(code("supacode://")) URL scheme to control Supacode from the terminal, scripts, or other apps.")
+        Text("Use the \(code("vantage://")) URL scheme to control Vantage from the terminal, scripts, or other apps.")
       }
 
       DeeplinkSection(title: "General", rows: Self.generalRows)
@@ -40,78 +40,78 @@ struct DeeplinkReferenceView: View {
   // MARK: - Row data.
 
   private static let generalRows: [DeeplinkEntry] = [
-    .init(url: "supacode://", description: "Bring app to front."),
-    .init(url: "supacode://help", description: "Open this reference."),
+    .init(url: "vantage://", description: "Bring app to front."),
+    .init(url: "vantage://help", description: "Open this reference."),
   ]
 
   private static let worktreeRows: [DeeplinkEntry] = [
-    .init(url: "supacode://worktree/<worktree_id>", description: "Select worktree."),
-    .init(url: "supacode://worktree/<worktree_id>/run", description: "Run the primary run-kind script."),
-    .init(url: "supacode://worktree/<worktree_id>/stop", description: "Stop all run-kind scripts."),
+    .init(url: "vantage://worktree/<worktree_id>", description: "Select worktree."),
+    .init(url: "vantage://worktree/<worktree_id>/run", description: "Run the primary run-kind script."),
+    .init(url: "vantage://worktree/<worktree_id>/stop", description: "Stop all run-kind scripts."),
     .init(
-      url: "supacode://worktree/<worktree_id>/script/<script_id>/run",
+      url: "vantage://worktree/<worktree_id>/script/<script_id>/run",
       description: "Run a specific configured script by UUID."
     ),
     .init(
-      url: "supacode://worktree/<worktree_id>/script/<script_id>/stop",
+      url: "vantage://worktree/<worktree_id>/script/<script_id>/stop",
       description: "Stop a specific running script by UUID."
     ),
-    .init(url: "supacode://worktree/<worktree_id>/archive", description: "Archive the worktree."),
-    .init(url: "supacode://worktree/<worktree_id>/unarchive", description: "Unarchive the worktree."),
-    .init(url: "supacode://worktree/<worktree_id>/delete", description: "Delete the worktree."),
-    .init(url: "supacode://worktree/<worktree_id>/pin", description: "Pin the worktree."),
-    .init(url: "supacode://worktree/<worktree_id>/unpin", description: "Unpin the worktree."),
+    .init(url: "vantage://worktree/<worktree_id>/archive", description: "Archive the worktree."),
+    .init(url: "vantage://worktree/<worktree_id>/unarchive", description: "Unarchive the worktree."),
+    .init(url: "vantage://worktree/<worktree_id>/delete", description: "Delete the worktree."),
+    .init(url: "vantage://worktree/<worktree_id>/pin", description: "Pin the worktree."),
+    .init(url: "vantage://worktree/<worktree_id>/unpin", description: "Unpin the worktree."),
   ]
 
   private static let tabSurfaceRows: [DeeplinkEntry] = [
     .init(
-      url: "supacode://worktree/<worktree_id>/tab/<tab_id>",
+      url: "vantage://worktree/<worktree_id>/tab/<tab_id>",
       description: "Focus a tab."
     ),
     .init(
-      url: "supacode://worktree/<worktree_id>/tab/new",
+      url: "vantage://worktree/<worktree_id>/tab/new",
       description: "Create a new tab.",
       params: "?input=<cmd>&id=<uuid>"
     ),
     .init(
-      url: "supacode://worktree/<worktree_id>/tab/<tab_id>/destroy",
+      url: "vantage://worktree/<worktree_id>/tab/<tab_id>/destroy",
       description: "Close a tab."
     ),
     .init(
-      url: "supacode://worktree/<worktree_id>/tab/<tab_id>/surface/<surface_id>",
+      url: "vantage://worktree/<worktree_id>/tab/<tab_id>/surface/<surface_id>",
       description: "Focus a surface.",
       params: "?input=<cmd>"
     ),
     .init(
-      url: "supacode://worktree/<worktree_id>/tab/<tab_id>/surface/<surface_id>/split",
+      url: "vantage://worktree/<worktree_id>/tab/<tab_id>/surface/<surface_id>/split",
       description: "Split a surface. Defaults to horizontal.",
       params: "?direction=horizontal|vertical&input=<cmd>&id=<uuid>"
     ),
     .init(
-      url: "supacode://worktree/<worktree_id>/tab/<tab_id>/surface/<surface_id>/destroy",
+      url: "vantage://worktree/<worktree_id>/tab/<tab_id>/surface/<surface_id>/destroy",
       description: "Close a surface."
     ),
   ]
 
   private static let repoRows: [DeeplinkEntry] = [
-    .init(url: "supacode://repo/open?path=<absolute-path>", description: "Open a repository."),
+    .init(url: "vantage://repo/open?path=<absolute-path>", description: "Open a repository."),
     .init(
-      url: "supacode://repo/<repo_id>/worktree/new",
+      url: "vantage://repo/<repo_id>/worktree/new",
       description: "Create a worktree.",
       params: "?branch=<name>&base=<ref>&fetch=true&name=<folder>&location=<dir>"
     ),
   ]
 
   private static let settingsRows: [DeeplinkEntry] = [
-    .init(url: "supacode://settings", description: "Open settings."),
+    .init(url: "vantage://settings", description: "Open settings."),
     .init(
-      url: "supacode://settings/<section>",
+      url: "vantage://settings/<section>",
       description: "Open a specific section.",
       params: "general|notifications|worktrees|developer|shortcuts|scripts|updates|github"
     ),
-    .init(url: "supacode://settings/repo/<repo_id>", description: "Open repository settings."),
+    .init(url: "vantage://settings/repo/<repo_id>", description: "Open repository settings."),
     .init(
-      url: "supacode://settings/repo/<repo_id>/scripts",
+      url: "vantage://settings/repo/<repo_id>/scripts",
       description: "Open repository Scripts settings."
     ),
   ]
