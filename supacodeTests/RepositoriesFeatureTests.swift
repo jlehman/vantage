@@ -717,6 +717,7 @@ struct RepositoriesFeatureTests {
         branchName: "",
         selectedBaseRef: nil,
         fetchOrigin: true,
+        existingWorktreeBranches: ["main"],
         defaultWorktreeBaseDirectory: expectedDefaultBase,
         validationMessage: nil
       )
@@ -1091,6 +1092,7 @@ struct RepositoriesFeatureTests {
         branchName: "",
         selectedBaseRef: nil,
         fetchOrigin: true,
+        existingWorktreeBranches: ["main"],
         defaultWorktreeBaseDirectory: expectedDefaultWorktreeBaseDirectory(for: repoB.rootURL),
         validationMessage: nil
       )

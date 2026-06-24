@@ -453,6 +453,17 @@ extension RepositoriesFeature {
           return
         }
         name = trimmed
+      case .existingBranch:
+        // The local-side existing-branch flow leans on `wt`'s no-`-b` path; the
+        // remote `createGitWorktree` helper doesn't expose that shape yet, so
+        // fail closed for remote repos until we extend it.
+        await send(
+          .presentAlert(
+            title: "Unsupported on remote repositories",
+            message: "Creating a worktree from an existing branch isn't supported on remote repositories yet."
+          )
+        )
+        return
       }
       // Parent directory precedence: the prompt's explicit override, then the
       // remote host's Vantage settings (per-repo, then global), then the
