@@ -232,6 +232,9 @@ struct RepositoriesFeature {
   enum WorktreeCreationNameSource: Equatable {
     case random
     case explicit(String)
+    /// User picked an existing local branch. The flow checks the branch out
+    /// in a new worktree (no `-b`, no base ref) instead of creating one.
+    case existingBranch(String)
   }
 
   enum WorktreeCreationBaseRefSource: Equatable {
@@ -319,7 +322,8 @@ struct RepositoriesFeature {
       branchName: String,
       baseRef: String?,
       fetchOrigin: Bool,
-      placement: WorktreePlacementOverride
+      placement: WorktreePlacementOverride,
+      useExistingBranch: Bool = false
     )
     case promptedWorktreeCreationChecked(
       repositoryID: Repository.ID,
@@ -1630,7 +1634,11 @@ struct RepositoriesFeature {
         // Pull the parked branch name so every rejection arm can drain its (repo, branch) entry
         // through the same helper — keeps the dict from leaking when a creation is rejected via
         // any of the three guards below.
-        let rejectedBranchName: String? = if case .explicit(let name) = nameSource { name } else { nil }
+        let rejectedBranchName: String? =
+          switch nameSource {
+          case .random: nil
+          case .explicit(let name), .existingBranch(let name): name
+          }
         guard let repository = state.repositories[id: repositoryID] else {
           state.alert = messageAlert(
             title: "Unable to create worktree",
@@ -1693,7 +1701,13 @@ struct RepositoriesFeature {
           repositorySettings.copyIgnoredOnWorktreeCreate ?? globalSettings.copyIgnoredOnWorktreeCreate
         let copyUntrackedOnWorktreeCreate =
           repositorySettings.copyUntrackedOnWorktreeCreate ?? globalSettings.copyUntrackedOnWorktreeCreate
-        let initialWorktreeName: String? = if case .explicit(let name) = nameSource { name } else { nil }
+        let initialWorktreeName: String? =
+          switch nameSource {
+          case .random: nil
+          case .explicit(let name), .existingBranch(let name): name
+          }
+        let isExistingBranchCreation: Bool =
+          if case .existingBranch = nameSource { true } else { false }
         // Pull any customization the New Worktree prompt parked for this
         // (repo, branch) and attach it to the pending row so reconcile
         // can render the user-typed title / color while git creates the
@@ -1827,6 +1841,43 @@ struct RepositoriesFeature {
                 return
               }
               name = trimmed
+            case .existingBranch(let existingBranchName):
+              // The picker already filtered out branches with active worktrees and
+              // verified the ref came from the local-branches inventory, so we only
+              // re-trim and confirm the branch really exists locally — a defense
+              // against a race where the branch was deleted between picker render
+              // and submit.
+              let trimmed = existingBranchName.trimmingCharacters(in: .whitespacesAndNewlines)
+              guard !trimmed.isEmpty else {
+                await send(
+                  .createRandomWorktreeFailed(
+                    title: "Branch name required",
+                    message: "Pick an existing branch to create a worktree.",
+                    pendingID: pendingID,
+                    previousSelection: previousSelection,
+                    repositoryID: repository.id,
+                    name: nil,
+                    baseDirectory: worktreeBaseDirectory
+                  )
+                )
+                return
+              }
+              let localBranches = (try? await gitClient.localBranchNames(repository.rootURL)) ?? []
+              guard localBranches.contains(trimmed) else {
+                await send(
+                  .createRandomWorktreeFailed(
+                    title: "Branch not found",
+                    message: "`\(trimmed)` is no longer a local branch.",
+                    pendingID: pendingID,
+                    previousSelection: previousSelection,
+                    repositoryID: repository.id,
+                    name: nil,
+                    baseDirectory: worktreeBaseDirectory
+                  )
+                )
+                return
+              }
+              name = trimmed
             }
             newWorktreeName = name
             // Validate the name leaf here too: the prompt guards it, but the
@@ -1871,22 +1922,29 @@ struct RepositoriesFeature {
               )
             )
             let resolvedBaseRef: String
-            switch baseRefSource {
-            case .repositorySetting:
-              if (selectedBaseRef ?? "").isEmpty {
-                resolvedBaseRef = await gitClient.automaticWorktreeBaseRef(repository.rootURL) ?? ""
-              } else {
-                resolvedBaseRef = selectedBaseRef ?? ""
-              }
-            case .explicit(let explicitBaseRef):
-              if let explicitBaseRef, !explicitBaseRef.isEmpty {
-                resolvedBaseRef = explicitBaseRef
-              } else {
-                resolvedBaseRef = await gitClient.automaticWorktreeBaseRef(repository.rootURL) ?? ""
+            if isExistingBranchCreation {
+              // Existing-branch path: omit `--from` so `wt` falls through to
+              // `git worktree add <path> <branch>` (no `-b`) and checks out
+              // the already-existing branch instead of creating a fork.
+              resolvedBaseRef = ""
+            } else {
+              switch baseRefSource {
+              case .repositorySetting:
+                if (selectedBaseRef ?? "").isEmpty {
+                  resolvedBaseRef = await gitClient.automaticWorktreeBaseRef(repository.rootURL) ?? ""
+                } else {
+                  resolvedBaseRef = selectedBaseRef ?? ""
+                }
+              case .explicit(let explicitBaseRef):
+                if let explicitBaseRef, !explicitBaseRef.isEmpty {
+                  resolvedBaseRef = explicitBaseRef
+                } else {
+                  resolvedBaseRef = await gitClient.automaticWorktreeBaseRef(repository.rootURL) ?? ""
+                }
               }
             }
             progress.baseRef = resolvedBaseRef
-            if fetchOrigin {
+            if fetchOrigin && !isExistingBranchCreation {
               let remotes: [String]
               do {
                 remotes = try await gitClient.remoteNames(repository.rootURL)
@@ -3447,6 +3505,11 @@ struct RepositoriesFeature {
           repositoryOverridePath: promptRepositorySettings.worktreeBaseDirectoryPath
         )
         .path(percentEncoded: false)
+        // Branches already checked out in another worktree — feeds the
+        // existing-branch picker so the user can't pick one `wt` would
+        // silently re-use. `Worktree.name` is the worktree's branch name
+        // (e.g. `feature/x`), matching the ref the picker stores per node.
+        let existingWorktreeBranches = Set(repository.worktrees.map(\.name))
         state.worktreeCreationPrompt = WorktreeCreationPromptFeature.State(
           repositoryID: repository.id,
           repositoryRootURL: repository.rootURL,
@@ -3458,6 +3521,7 @@ struct RepositoriesFeature {
           branchName: "",
           selectedBaseRef: selectedBaseRef,
           fetchOrigin: promptSettingsFile.global.fetchOriginBeforeWorktreeCreation,
+          existingWorktreeBranches: existingWorktreeBranches,
           defaultWorktreeBaseDirectory: defaultWorktreeBaseDirectory,
           validationMessage: nil
         )
@@ -3538,12 +3602,43 @@ struct RepositoriesFeature {
           )
         )
 
+      case .worktreeCreationPrompt(
+        .presented(
+          .delegate(
+            .submitExistingBranch(
+              let repositoryID,
+              let branchName,
+              let placement,
+              let title,
+              let color
+            )
+          )
+        )
+      ):
+        if title != nil || color != nil {
+          state.pendingCreationCustomizations[repositoryID, default: [:]][branchName] =
+            PendingWorktree.Customization(title: title, color: color)
+        } else {
+          state.dropPendingCustomization(repositoryID: repositoryID, branchName: branchName)
+        }
+        return .send(
+          .startPromptedWorktreeCreation(
+            repositoryID: repositoryID,
+            branchName: branchName,
+            baseRef: nil,
+            fetchOrigin: false,
+            placement: placement,
+            useExistingBranch: true
+          )
+        )
+
       case .startPromptedWorktreeCreation(
         let repositoryID,
         let branchName,
         let baseRef,
         let fetchOrigin,
-        let placement
+        let placement,
+        let useExistingBranch
       ):
         guard let repository = state.repositories[id: repositoryID] else {
           state.worktreeCreationPrompt = nil
@@ -3561,11 +3656,30 @@ struct RepositoriesFeature {
         let normalizedBranchName = branchName.lowercased()
         if repository.worktrees.contains(where: { $0.name.lowercased() == normalizedBranchName }) {
           state.worktreeCreationPrompt?.isValidating = false
-          state.worktreeCreationPrompt?.validationMessage = "Branch name already exists."
+          state.worktreeCreationPrompt?.validationMessage =
+            useExistingBranch
+            ? "That branch is already checked out in a worktree."
+            : "Branch name already exists."
           // Synchronous duplicate rejection. Drop the stashed customization so it can't be
           // re-applied if the user retries with a different branch name.
           state.dropPendingCustomization(repositoryID: repositoryID, branchName: branchName)
           return .none
+        }
+        if useExistingBranch {
+          // Existing-branch mode: the branch existing locally is the whole point,
+          // so skip the async local-branches duplicate check and go straight to
+          // creation with `.existingBranch` so the downstream flow omits `--from`.
+          state.worktreeCreationPrompt?.isValidating = false
+          state.worktreeCreationPrompt = nil
+          return .send(
+            .createWorktreeInRepository(
+              repositoryID: repositoryID,
+              nameSource: .existingBranch(branchName),
+              baseRefSource: .explicit(nil),
+              fetchOrigin: false,
+              placement: placement
+            )
+          )
         }
         let gitClient = gitClient(for: repository)
         let rootURL = repository.rootURL

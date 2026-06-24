@@ -10,31 +10,44 @@ struct WorktreeCreationPromptView: View {
   var body: some View {
     Form {
       Section {
-        TextField("Branch name", text: $store.branchName)
-          .focused($isBranchFieldFocused)
-          .onSubmit {
-            store.send(.createButtonTapped)
-          }
+        Picker("Mode", selection: $store.creationMode) {
+          Text("New branch").tag(WorktreeCreationPromptFeature.CreationMode.newBranch)
+          Text("Existing branch").tag(WorktreeCreationPromptFeature.CreationMode.existingBranch)
+        }
+        .pickerStyle(.segmented)
+        .labelsHidden()
+
+        if store.creationMode == .newBranch {
+          TextField("Branch name", text: $store.branchName)
+            .focused($isBranchFieldFocused)
+            .onSubmit {
+              store.send(.createButtonTapped)
+            }
+        } else {
+          WorktreeExistingBranchField(store: store)
+        }
       } header: {
         // `NavigationStack` with title and subtitle is bugged inside
         // sheets in macOS 26.*, and this is a nice enough fallback.
         Text("New Worktree")
-        Text("Create a branch in `\(store.repositoryName)`.")
+        Text(headerSubtitle)
       } footer: {
         WorktreeCreationFooter(store: store)
       }
       .headerProminence(.increased)
 
-      Section {
-        WorktreeBaseRefField(store: store)
+      if store.creationMode == .newBranch {
+        Section {
+          WorktreeBaseRefField(store: store)
 
-        Toggle(isOn: $store.fetchOrigin) {
-          Text("Fetch remote branch")
-          Text(
-            "Runs `git fetch` to ensure the base branch is up to date before creating the worktree."
-          )
+          Toggle(isOn: $store.fetchOrigin) {
+            Text("Fetch remote branch")
+            Text(
+              "Runs `git fetch` to ensure the base branch is up to date before creating the worktree."
+            )
+          }
+          .disabled(store.isSelectedBaseRefLocal)
         }
-        .disabled(store.isSelectedBaseRefLocal)
       }
 
       WorktreeAppearanceSection(store: store)
@@ -68,6 +81,15 @@ struct WorktreeCreationPromptView: View {
     .frame(minWidth: 420)
     .task { isBranchFieldFocused = true }
     .dismissSystemColorPanelOnDisappear()
+  }
+
+  private var headerSubtitle: String {
+    switch store.creationMode {
+    case .newBranch:
+      return "Create a branch in `\(store.repositoryName)`."
+    case .existingBranch:
+      return "Check out an existing branch in `\(store.repositoryName)` as a new worktree."
+    }
   }
 }
 
@@ -223,6 +245,114 @@ private struct WorktreeBaseRefMenuItem: View {
       store.send(.baseRefSelected(ref))
     } label: {
       if store.selectedBaseRef == ref {
+        Label {
+          label
+        } icon: {
+          Image(systemName: "checkmark")
+            .accessibilityHidden(true)
+        }
+      } else {
+        label
+      }
+    }
+  }
+}
+
+private struct WorktreeExistingBranchField: View {
+  @Bindable var store: StoreOf<WorktreeCreationPromptFeature>
+
+  var body: some View {
+    LabeledContent {
+      HStack(spacing: 8) {
+        if store.isLoadingBranches {
+          ProgressView()
+            .controlSize(.small)
+        }
+        Menu {
+          WorktreeExistingBranchMenuContent(store: store)
+        } label: {
+          Text(menuLabel)
+            .lineLimit(1)
+            .truncationMode(.middle)
+        }
+      }
+    } label: {
+      Text("Branch")
+      Text("The existing local branch to check out into the new worktree.")
+    }
+  }
+
+  private var menuLabel: String {
+    if let selected = store.selectedExistingBranch, !selected.isEmpty {
+      return selected
+    }
+    return "Pick a branch"
+  }
+}
+
+private struct WorktreeExistingBranchMenuContent: View {
+  @Bindable var store: StoreOf<WorktreeCreationPromptFeature>
+
+  var body: some View {
+    if let branchMenu = store.branchMenu {
+      let available = store.availableExistingBranches
+      if available.isEmpty {
+        // Disabled placeholder so the menu doesn't collapse to nothing on
+        // repos where every local branch is already checked out.
+        Text("No available branches")
+      } else {
+        ForEach(branchMenu.localBranches) { node in
+          WorktreeExistingBranchNodeMenu(store: store, node: node, available: available)
+        }
+      }
+    } else {
+      Text("Loading branches…")
+    }
+  }
+}
+
+private struct WorktreeExistingBranchNodeMenu: View {
+  @Bindable var store: StoreOf<WorktreeCreationPromptFeature>
+  let node: BranchMenuNode
+  let available: Set<String>
+
+  var body: some View {
+    // Skip a leaf whose ref is filtered out; collapse a grouping node whose
+    // subtree contributes nothing selectable.
+    if let ref = node.ref, node.children.isEmpty {
+      if available.contains(ref) {
+        WorktreeExistingBranchMenuItem(store: store, ref: ref, label: Text(node.name))
+      }
+    } else if !node.children.isEmpty {
+      if hasAvailableDescendant(node) {
+        Menu(node.name) {
+          if let ref = node.ref, available.contains(ref) {
+            WorktreeExistingBranchMenuItem(store: store, ref: ref, label: Text(node.name))
+          }
+          ForEach(node.children) { child in
+            WorktreeExistingBranchNodeMenu(store: store, node: child, available: available)
+          }
+        }
+      }
+    }
+  }
+
+  private func hasAvailableDescendant(_ node: BranchMenuNode) -> Bool {
+    if let ref = node.ref, available.contains(ref) { return true }
+    return node.children.contains(where: hasAvailableDescendant)
+  }
+}
+
+private struct WorktreeExistingBranchMenuItem: View {
+  @Bindable var store: StoreOf<WorktreeCreationPromptFeature>
+  let ref: String
+  let label: Text
+
+  var body: some View {
+    Button {
+      store.send(.existingBranchSelected(ref))
+    } label: {
+      if store.selectedExistingBranch == ref {
         Label {
           label
         } icon: {

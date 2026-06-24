@@ -314,4 +314,99 @@ struct WorktreeCreationPromptFeatureTests {
       $0.validationMessage = "Branch name required."
     }
   }
+
+  // MARK: - Existing branch mode
+
+  private func localOnlyBranchMenu(_ branches: [String]) -> BaseRefBranchMenu {
+    BaseRefBranchMenu(
+      inventory: GitBranchInventory(localBranches: branches),
+      hoistedLocalBranch: nil
+    )
+  }
+
+  @Test func switchingToExistingBranchModeClearsValidation() async {
+    var state = makeState()
+    state.validationMessage = "stale"
+    let store = TestStore(initialState: state) {
+      WorktreeCreationPromptFeature()
+    }
+
+    await store.send(.set(\.creationMode, .existingBranch)) {
+      $0.creationMode = .existingBranch
+      $0.validationMessage = nil
+    }
+  }
+
+  @Test func existingBranchSelectedUpdatesSelectionAndClearsValidation() async {
+    var state = makeState()
+    state.creationMode = .existingBranch
+    state.validationMessage = "stale"
+    let store = TestStore(initialState: state) {
+      WorktreeCreationPromptFeature()
+    }
+
+    await store.send(.existingBranchSelected("feature/x")) {
+      $0.selectedExistingBranch = "feature/x"
+      $0.validationMessage = nil
+    }
+  }
+
+  @Test func createButtonTappedInExistingBranchModeRequiresSelection() async {
+    var state = makeState()
+    state.creationMode = .existingBranch
+    let store = TestStore(initialState: state) {
+      WorktreeCreationPromptFeature()
+    }
+
+    await store.send(.createButtonTapped) {
+      $0.validationMessage = "Pick a branch."
+    }
+  }
+
+  @Test func createButtonTappedInExistingBranchModeSendsSubmitExistingBranchDelegate() async {
+    var state = makeState(title: "Pinned", color: .purple)
+    state.creationMode = .existingBranch
+    state.selectedExistingBranch = "feature/x"
+    let store = TestStore(initialState: state) {
+      WorktreeCreationPromptFeature()
+    }
+
+    await store.send(.createButtonTapped)
+    await store.receive(
+      .delegate(
+        .submitExistingBranch(
+          repositoryID: "/tmp/repo/",
+          branchName: "feature/x",
+          placement: WorktreePlacementOverride(name: nil, path: nil),
+          title: "Pinned",
+          color: .purple
+        )
+      )
+    )
+  }
+
+  @Test func placeholderAndPreviewTrackExistingBranchInExistingMode() {
+    var state = makeState(defaultWorktreeBaseDirectory: "/tmp/repo/.worktrees")
+    state.creationMode = .existingBranch
+    state.selectedExistingBranch = "feature/y"
+    // `branchName` (left over from new-branch mode) must not leak into either
+    // derivation.
+    state.branchName = "ignored/new"
+    #expect(state.worktreeNamePlaceholder == "feature/y")
+    #expect(state.resolvedWorktreeLocationPreview == "/tmp/repo/.worktrees/feature/y/")
+  }
+
+  @Test func availableExistingBranchesExcludesAlreadyCheckedOut() {
+    var state = makeState(branchMenu: localOnlyBranchMenu(["main", "feature/x", "feature/y"]))
+    state.existingWorktreeBranches = ["feature/x"]
+    let available = state.availableExistingBranches
+    #expect(available.contains("main"))
+    #expect(available.contains("feature/y"))
+    #expect(!available.contains("feature/x"))
+  }
+
+  @Test func availableExistingBranchesIsEmptyWhenInventoryNotLoaded() {
+    let state = makeState()
+    #expect(state.availableExistingBranches.isEmpty)
+  }
 }

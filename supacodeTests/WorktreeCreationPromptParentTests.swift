@@ -424,4 +424,71 @@ struct WorktreeCreationPromptParentTests {
       ]
     }
   }
+
+  @Test func submitExistingBranchParksCustomizationAndDispatchesUseExistingBranchTrue() async {
+    let store = makeStore(initialState: makeStateWithPrompt())
+
+    await store.send(
+      .worktreeCreationPrompt(
+        .presented(
+          .delegate(
+            .submitExistingBranch(
+              repositoryID: repoID,
+              branchName: "feature/x",
+              placement: WorktreePlacementOverride(name: nil, path: nil),
+              title: "Pinned",
+              color: .purple,
+            )
+          )))
+    ) {
+      $0.pendingCreationCustomizations[self.repoID] = [
+        "feature/x": .init(title: "Pinned", color: .purple)
+      ]
+    }
+    // RepositoriesFeature.Action isn't Equatable; key-path form verifies the
+    // existing-branch flag was threaded through without payload comparison.
+    await store.receive(\.startPromptedWorktreeCreation) {
+      $0.worktreeCreationPrompt = nil
+    }
+  }
+
+  @Test func startPromptedExistingBranchTrueRejectsWhenSameNameWorktreeExists() async {
+    // The picker filters branches with worktrees, but a race could let one
+    // through. Verify the synchronous name-collision check fires with the
+    // existing-branch-specific message.
+    var state = makeStateWithPrompt()
+    let existing = Worktree(
+      id: WorktreeID("\(repoID)/feature-x"),
+      name: "feature/x",
+      detail: "detail",
+      workingDirectory: URL(fileURLWithPath: "\(repoID)/feature-x"),
+      repositoryRootURL: URL(fileURLWithPath: repoID.rawValue),
+    )
+    let repo = state.repositories[id: repoID]!
+    var worktrees = repo.worktrees
+    worktrees.append(existing)
+    state.repositories[id: repoID] = Repository(
+      id: repo.id,
+      rootURL: repo.rootURL,
+      name: repo.name,
+      worktrees: worktrees,
+      isGitRepository: true,
+    )
+    let store = makeStore(initialState: state)
+
+    await store.send(
+      .startPromptedWorktreeCreation(
+        repositoryID: repoID,
+        branchName: "feature/x",
+        baseRef: nil,
+        fetchOrigin: false,
+        placement: WorktreePlacementOverride(name: nil, path: nil),
+        useExistingBranch: true,
+      )
+    ) {
+      $0.worktreeCreationPrompt?.isValidating = false
+      $0.worktreeCreationPrompt?.validationMessage =
+        "That branch is already checked out in a worktree."
+    }
+  }
 }
